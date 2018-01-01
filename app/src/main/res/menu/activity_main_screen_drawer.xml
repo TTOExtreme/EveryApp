@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/bot_Home"
+            android:icon="@drawable/homeicon"
+            android:title="Home" />
+        <item
+            android:id="@+id/bot_OpenFile"
+            android:icon="@drawable/foldericon"
+            android:title="Open File" />
+        <item
+            android:id="@+id/bot_NewFile"
+            android:icon="@drawable/fileicon"
+            android:title="New File" />
+    </group>
+
+    <item android:title="Advanced">
+        <menu>
+            <item
+                android:id="@+id/bot_Explorer"
+                android:icon="@drawable/sdicon"
+                android:title="Explorer" />
+            <item
+                android:id="@+id/bot_Terminal"
+                android:icon="@drawable/terminalicon"
+                android:title="Terminal" />
+        </menu>
+    </item>
+
+</menu>
