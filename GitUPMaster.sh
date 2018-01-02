@@ -6,6 +6,7 @@ DATE=Y`date '+%g'`D`date '+%j'`T`date '+%H%M'`
 git init
 git add .
 git commit -m ${DATE}
+git checkout -b master
 git remote add origin "https://github.com/TTOExtreme/EveryApp.git"
 git push -u origin master
 
