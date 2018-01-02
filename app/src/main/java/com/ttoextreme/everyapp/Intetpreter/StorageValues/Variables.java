@@ -94,7 +94,7 @@ public class Variables {
                 try
                 {
                     v.Value = Integer.parseInt(v.Value.toString()) + val;
-                    VarAdd(v);
+                    VarSet(v.Name,v.Type,v.Value);
                 }
                 catch(Exception e)
                 {
@@ -114,7 +114,7 @@ public class Variables {
                 try
                 {
                     v.Value = Integer.parseInt(v.Value.toString()) - val;
-                    VarAdd(v);
+                    VarSet(v.Name,v.Type,v.Value);
                 }
                 catch(Exception e)
                 {
@@ -137,7 +137,6 @@ public class Variables {
                 {
                     VariablesStruct va = LV.get(i);
                     if (va.Name == v.Name) { va = v; LV.set(i,va);  return; }
-                    LV.set(i,va);
                 }
                 LV.add(v);
             }
@@ -147,7 +146,6 @@ public class Variables {
                 {
                     VariablesStruct va = GV.get(i);
                     if (va.Name == v.Name) { va = v; GV.set(i,va);  return; }
-                    GV.set(i,va);
                 }
                 GV.add(v);
             }
@@ -185,12 +183,19 @@ public class Variables {
         for (int i = 0; i < LV.size(); i++)
         {
             VariablesStruct va = LV.get(i);
-            if (va.Name == name) { LV.remove(i); return; }
+            if (va.Name.equals(name)) {
+                if(LV.remove(va)){
+                    System.out.print("removed");
+                }else{
+                    System.out.print("Error removing");
+                }
+                return;
+            }
         }
         for (int i = 0; i < GV.size(); i++)
         {
             VariablesStruct va = GV.get(i);
-            if (va.Name == name) { GV.remove(i); return; }
+            if (va.Name.equals(name)) { GV.remove(va); return; }
         }
     }
 }

@@ -74,7 +74,7 @@ public class LuaInterpreterJava {
                 return;
             }else{
                 if(MethodsClass.MethodValid(program[i])){
-                    MethodsClass.Get(program[i]).apply(ExtractArgs(program[i]),"");
+                    MethodsClass.Get(program[i]).apply(ExtractArgs(Vars.Replace(program[i])),"");
                 }else{
                     //++;
                     if(program[i].indexOf("++")>-1){
@@ -82,8 +82,8 @@ public class LuaInterpreterJava {
                         Vars.VarSum(v,1);
                     }
                     if(program[i].indexOf("--")>-1){
-                        String v=program[i].replace("++","").replace(";","").replace(" ","");
-                        Vars.VarSum(v,1);
+                        String v=program[i].replace("--","").replace(";","").replace(" ","");
+                        Vars.VarSub(v,1);
                     }
 
                     //conditionals
