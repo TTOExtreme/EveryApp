@@ -59,8 +59,13 @@ public class ForStatement {
             Vars.VarSet(args[0], new VariablesStruct().LOCAL, args[1]);
         }
 
-
-        ForCE(Lines,0);
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ForCE(Lines, 0);
+            }
+        }, 50);
 
     }
 
@@ -80,7 +85,7 @@ public class ForStatement {
         }
         String sig ="";
 
-        if (Integer.parseInt(args[1]) < Integer.parseInt(args[2])) { sig = " < "; } else { if (Integer.parseInt(args[1]) > Integer.parseInt(args[2])) { sig = " < "; } }
+        if (Integer.parseInt(args[1]) < Integer.parseInt(args[2])) { sig = " <= "; } else { if (Integer.parseInt(args[1]) > Integer.parseInt(args[2])) { sig = " >= "; } }
 
 
         for (; Cond.IsTrue("(" + args[0].replace(" ", "") + sig + args[2].replace(" ", "") + ")");)
@@ -113,13 +118,15 @@ public class ForStatement {
                     }
                     final int DelayTime = Integer.parseInt(Lua.ExtractArgs(Lines.get(count))[0]);
 
+                    Vars.BGExecution = Vars.BGExecution+"{";
                     final Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             ForCE(Lines, finalCount + 1);
+                            Vars.BGExecution +="}";
                         }
-                    }, DelayTime);
+                    }, DelayTime+50);
                     return;
                 } else {
                     Lua.DoLine(Lines.get(count));
@@ -141,6 +148,7 @@ public class ForStatement {
             @Override
             public void run() {
                 Vars.VarRem(args[0]);
+                Vars.BGExecution +="}";
             }
         }, 100);
         return;

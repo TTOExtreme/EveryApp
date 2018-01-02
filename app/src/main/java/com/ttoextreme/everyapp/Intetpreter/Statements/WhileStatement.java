@@ -36,8 +36,8 @@ public class WhileStatement {
         Vars = Lua.Vars;
     }
 
-    public void WhileStaement(List<String> Lines)
-    {
+    public void WhileStatement(List<String> Lines){
+
         Func = Lua.Func;
         Cond = Lua.Cond;
         IF = Lua.IF;
@@ -45,55 +45,79 @@ public class WhileStatement {
         //WHILE = Lua.WHILE;
         Vars = Lua.Vars;
 
-        List<String> prog = new ArrayList<>();
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                While(Lines, 0);
+            }
+        }, 50);
+
+    }
+
+    public void While(List<String> Lines,int at)
+    {
+
+        List<String> _prog = new ArrayList<>();
 
         String openclose = "";
-        int count = 0;
-
-        int DelayTime = 50;
+        int count = at;
 
         List<String> program = new ArrayList<>();
 
-        String[] args = Lines.get(0).substring(Lines.get(0).indexOf("(") + 1, Lines.get(0).lastIndexOf(")") - 1 - Lines.get(0).indexOf("(")).split(";");
+        String[] args = Lines.get(0).substring(Lines.get(0).indexOf("(") + 1, Lines.get(0).lastIndexOf(")")).split(";");
         while (Cond.IsTrue("("+args[0]+")"))
         {
-            //Task.Delay(10);
+            if(count>Lines.size()-1){count=0;}
+            //verify endless
+            if (Lines.get(count).indexOf(Refer.Do) > -1 || Lines.get(count).indexOf(Refer.Then) > -1) { openclose += "{"; }
+            if (Lines.get(count).indexOf(Refer.End) > -1) { openclose += "}"; }
+            while (openclose.indexOf("{}")>-1){openclose=openclose.replace("{}","");}
 
-            if (prog.get(count).indexOf(Refer.Delay)>-1){DelayTime += Integer.parseInt(Lua.ExtractArgs(prog.get(0))[0]); }
-            if (prog.get(count).indexOf(Refer.Do) > -1) { openclose += "{"; }
 
             //prog.RemoveAt(0);
             count++;
-            if (prog.get(count).indexOf(Refer.Do) > -1) { openclose += "{"; }
-            List<String> _prog = new ArrayList<>();
-            for (String s : prog) { _prog.add(s); }
-            while ((prog.get(count).indexOf(Refer.Then) == -1 && prog.get(count).indexOf(Refer.Do) == -1) && openclose != "{")
-            {
-                if (_prog.get(0).indexOf(Refer.End) > -1) { _prog.set(count,_prog.get(count).replace(Refer.End, " ")); openclose += "}"; openclose = openclose.replace("{}", ""); if (openclose == "") { break; } }
+            if(count>Lines.size()-1){count=1;}
+            if (Lines.get(count).indexOf(Refer.Do) > -1 && Lines.get(count).indexOf(Refer.Then) > -1) { openclose += "{"; }
+            _prog = new ArrayList<>();
+            for (String s : Lines) { _prog.add(s); }
 
-                if (prog.get(0).indexOf(Refer.Return) > -1) { return; }
-                Lua.DoLine(_prog.get(count));
-                _prog.remove(count);
-                if (_prog.size() - count == 1) { break; }
-            }
-            Lua.DoFile(program.toArray(new String[0]));
+            if(!(Lines.get(count).indexOf(Refer.End)>-1 && openclose=="")) {
+                int finalCount = count;
 
-            count =0;
+                if (Lines.get(count).indexOf(Refer.Delay) > -1) {
+                    final String[] _program = new String[Lines.size() - count - 1];
+                    for (int j = 1; j < Lines.size() - count; j++) {
+                        _program[j - 1] = Lines.get(j + count);
+                    }
+                    String str = Lines.get(count).substring(Lines.get(count).indexOf(Refer.Delay));
+                    if (str.indexOf(";") > -1) {
+                        str = str.substring(0, str.indexOf(";"));
+                    }
+                    final int DelayTime = Integer.parseInt(Lua.ExtractArgs(Lines.get(count))[0]);
 
-            final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    WhileStaement(Lines);
-
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            While(Lines, finalCount );
+                        }
+                    }, DelayTime);
+                    return;
+                } else {
+                    Lua.DoLine(Lines.get(count));
                 }
-            }, DelayTime);
-            return;
 
+            }
         }
-        for (; count > 0; count--)
-        {
-            prog.remove(0);
-        }
+        if (_prog.size() > 0) { _prog.remove(0); }
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Vars.VarRem(args[0]);
+            }
+        }, 100);
+        return;
     }
 }

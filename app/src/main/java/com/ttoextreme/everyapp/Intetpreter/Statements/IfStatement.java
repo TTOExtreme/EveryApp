@@ -81,6 +81,7 @@ public class IfStatement {
 
             Lua.DoFile(program.toArray(new String[0]));
 
+            Vars.BGExecution+="}";
             return prog;
         }
         else
@@ -114,8 +115,11 @@ public class IfStatement {
                 }
 
                 Lua.DoFile(program.toArray(new String[0]));
+                Vars.BGExecution+="}";
+                return prog;
             }
         }
+        Vars.BGExecution+="}";
         return prog;
     }
 }

@@ -83,7 +83,7 @@ public class Conditionals {
         }
         
         //#region +++++++++++++++++++++ ">" ++++++++++++++++++++++++
-        if (str.indexOf(">") > -1)
+        if (str.indexOf(" > ") > -1)
         {
             str = Vars.Replace(str);
 
@@ -97,7 +97,7 @@ public class Conditionals {
         }
         
         //#region +++++++++++++++++++++ "<" ++++++++++++++++++++++++
-        if (str.indexOf("<") > -1)
+        if (str.indexOf(" < ") > -1)
         {
             str = Vars.Replace(str);
 

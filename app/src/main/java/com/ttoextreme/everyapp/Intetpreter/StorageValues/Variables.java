@@ -13,6 +13,7 @@ public class Variables {
 
     public List<VariablesStruct> LV = new ArrayList<>();
     public List<VariablesStruct> GV = new ArrayList<>();
+    public String BGExecution = "";
 
     public String Replace(String command)
     {
@@ -136,7 +137,7 @@ public class Variables {
                 for (int i = 0; i < LV.size(); i++)
                 {
                     VariablesStruct va = LV.get(i);
-                    if (va.Name == v.Name) { va = v; LV.set(i,va);  return; }
+                    if (va.Name.equals(v.Name)) { va = v; LV.set(i,va);  return; }
                 }
                 LV.add(v);
             }
@@ -145,7 +146,7 @@ public class Variables {
                 for (int i = 0; i < GV.size(); i++)
                 {
                     VariablesStruct va = GV.get(i);
-                    if (va.Name == v.Name) { va = v; GV.set(i,va);  return; }
+                    if (va.Name.equals(v.Name)) { va = v; GV.set(i,va);  return; }
                 }
                 GV.add(v);
             }
