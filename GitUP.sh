@@ -1,7 +1,7 @@
 #!/bin/bash
 clear
 echo "Uploading to Database"
-DATE=Y`date '+%g'`D`date '+%j'`
+DATE=Y`date '+%g'`D`date '+%j'`T`date '+%H%M'`
 
 git init
 git add .
