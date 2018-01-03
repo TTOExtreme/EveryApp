@@ -32,6 +32,8 @@ public class ActMethods {
         Main.Lua.AddMethod(ref.SetMarginBottom,ref.SetMarginBottom,this::ViewSetMarginBottom);
         Main.Lua.AddMethod(ref.SetMarginLeft,ref.SetMarginLeft,this::ViewSetMarginLeft);
         Main.Lua.AddMethod(ref.SetMarginRight,ref.SetMarginRight,this::ViewSetMarginRight);
+        Main.Lua.AddMethod(ref.SetWidth,ref.SetWidth,this::ViewSetWidth);
+        Main.Lua.AddMethod(ref.SetHeight,ref.SetHeight,this::ViewSetHeight);
         Views = new ArrayList<ViewStruct>();
     }
 
@@ -75,7 +77,7 @@ public class ActMethods {
         return "";
     }
     public String ViewSetBgColor(String[] s1,String s2){
-        String View = s2.substring(0,s2.indexOf(ref.SetText)).replace(" ","").replace(".","");
+        String View = s2.substring(0,s2.indexOf(ref.SetBgColor)).replace(" ","").replace(".","");
         for(int i=0;i<Views.size();i++){
             if(Views.get(i).Name.equals(View)){
                 ViewStruct vs = Views.get(i);
@@ -86,11 +88,11 @@ public class ActMethods {
         return "";
     }
     public String ViewSetTextColor(String[] s1,String s2){
-        String View = s2.substring(0,s2.indexOf(ref.SetText)).replace(" ","").replace(".","");
+        String View = s2.substring(0,s2.indexOf(ref.SetTextColor)).replace(" ","").replace(".","");
         for(int i=0;i<Views.size();i++){
             if(Views.get(i).Name.equals(View)){
                 ViewStruct vs = Views.get(i);
-                vs.Text=s1[0];
+                vs.TextColor=Color.rgb(Integer.parseInt(s1[0]),Integer.parseInt(s1[1]),Integer.parseInt(s1[2]));
                 Views.set(i,vs);
             }
         }
@@ -141,7 +143,7 @@ public class ActMethods {
         return "";
     }
     public String ViewSetClick(String[] s1,String s2){
-        String View = s2.substring(0,s2.indexOf(ref.SetMarginRight)).replace(" ","").replace(".","");
+        String View = s2.substring(0,s2.indexOf(ref.SetClick)).replace(" ","").replace(".","");
         for(int i=0;i<Views.size();i++){
             if(Views.get(i).Name.equals(View)){
                 ViewStruct vs = Views.get(i);
@@ -151,8 +153,30 @@ public class ActMethods {
         }
         return "";
     }
+    public String ViewSetWidth(String[] s1,String s2){
+        String View = s2.substring(0,s2.indexOf(ref.SetWidth)).replace(" ","").replace(".","");
+        for(int i=0;i<Views.size();i++){
+            if(Views.get(i).Name.equals(View)){
+                ViewStruct vs = Views.get(i);
+                vs.Width = Integer.parseInt(s1[0]);
+                Views.set(i,vs);
+            }
+        }
+        return "";
+    }
+    public String ViewSetHeight(String[] s1,String s2){
+        String View = s2.substring(0,s2.indexOf(ref.SetHeight)).replace(" ","").replace(".","");
+        for(int i=0;i<Views.size();i++){
+            if(Views.get(i).Name.equals(View)){
+                ViewStruct vs = Views.get(i);
+                vs.Height = Integer.parseInt(s1[0]);
+                Views.set(i,vs);
+            }
+        }
+        return "";
+    }
     public String Start(String[] s1,String s2){
-        Main.ActP.StartScreen(s2);
+        Main.ActP.StartScreen(s1[0]);
         return "";
     }
 }

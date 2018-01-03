@@ -56,6 +56,8 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
     private References ReferencesClass = new References();
     private AppsExemple AppEx = new AppsExemple();
 
+    private String Executing = "";
+
     private int MenuNum;
 
 
@@ -177,10 +179,11 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
     }
 
     public void OpenFile(String path){
-
+        MenuNum = new Menus().TERMINAL;
         BufferedReader in = null;
         try {
             in = new BufferedReader(new FileReader(path));
+            Executing = path;
 
             String str;
 
@@ -250,6 +253,7 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
             return true;
         }
         if (id == R.id.action_restart) {
+            if(Executing!=""){OpenFile(Executing);}
             return true;
         }
         if (id == R.id.action_save) {

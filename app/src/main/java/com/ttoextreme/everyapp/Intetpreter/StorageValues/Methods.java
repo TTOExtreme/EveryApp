@@ -25,6 +25,7 @@ public class Methods {
 
     public boolean MethodValid(String in){
         for(int i=0;i<MethodsList.size();i++){
+            if(in.indexOf("(")>-1){in=in.substring(0,in.indexOf("(")+1);}
             if(in.indexOf(MethodsList.get(i).Calls)>-1){return true;}
         }
         return false;
@@ -32,6 +33,7 @@ public class Methods {
 
     public BiFunction<String[],String,String> Get(String in){
         for(int i=0;i<MethodsList.size();i++){
+            if(in.indexOf("(")>-1){in=in.substring(0,in.indexOf("(")+1);}
             if(in.indexOf(MethodsList.get(i).Calls)>-1){return MethodsList.get(i).Method;}
         }
         return null;
