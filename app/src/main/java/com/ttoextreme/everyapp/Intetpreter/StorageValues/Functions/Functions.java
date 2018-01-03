@@ -27,7 +27,7 @@ public class Functions {
     {
         for (FunctionStruct f : Fs)
         {
-            if (f.Name == name) { return f.Lines; }
+            if (name.indexOf(f.Name)>-1) { return f.Lines; }
         }
         return new ArrayList<String>();
     }
@@ -45,7 +45,7 @@ public class Functions {
     {
         for (FunctionStruct f : Fs)
         {
-            if (f.Name == name) { return true; }
+            if (name.indexOf(f.Name)>-1) { return true; }
         }
         return false;
     }

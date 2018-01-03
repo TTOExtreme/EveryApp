@@ -1,33 +1,33 @@
-package com.ttoextreme.everyapp.Terminal;
+package com.ttoextreme.everyapp.FilesManipulation;
 
 import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.inputmethodservice.Keyboard;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
-import android.widget.Toast;
 
-import java.security.Key;
-import java.security.KeyStore;
-import java.security.PublicKey;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 
 /**
- * Created by ttoextreme on 11/9/17.
+ * Created by TTOExtreme on 02/01/2018.
  */
 
-public class Terminal {
+public class Editor {
     private Activity Main;
     private EditText terminal;
-    private EditText input;
+    private Button Save;
+    private Button SaveNew;
     public List<String> Text = new ArrayList<String>();
     public int Bg = Color.BLACK;
     public int Tx = Color.WHITE;
@@ -37,19 +37,38 @@ public class Terminal {
     RelativeLayout RL;
     ScrollView SV;
 
-    public Terminal(Activity act){
+    public Editor(Activity act){
         Main=act;
         terminal = new EditText(Main);
-        input = new EditText(Main);
+        Save = new Button(Main);
+        SaveNew = new Button(Main);
         RL = new RelativeLayout(Main);
         SV = new ScrollView(Main);
     }
 
+    public void Edit(String path){
+        Text = new ArrayList<String>();
+        if(new File(path).exists()){
+            BufferedReader in = null;
+            try {
+                in = new BufferedReader(new FileReader(path));
+                String str;
+                while ((str = in.readLine()) != null) {
+                    Text.add(str);
+                }
+            }catch (Exception e){
+                System.err.print(e);
+            }
+
+        }
+    }
+
     public void SetOnkeyListerner(BiFunction<String[],String,String> keylistener){
-        input.setOnKeyListener(new View.OnKeyListener() {
+        Save.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                        keylistener.apply(((EditText)v).getText().toString().split(";"),"");
+
+                    keylistener.apply(((EditText)v).getText().toString().split(";"),"");
                     return true;
                 }
                 return false;
@@ -58,7 +77,7 @@ public class Terminal {
     }
 
 
-    public View getView(){
+    public View getTerm(){
 
         RL.removeAllViews();
         SV.removeAllViews();
@@ -71,11 +90,10 @@ public class Terminal {
         int screenX = size.x;
         int screenY = size.y;
 
-        terminal.setText("");
+        terminal.setText(Text.toString());
 
-        input.setTextColor(Color.BLACK);
-        input.setBackgroundColor(Color.DKGRAY);
-        input.setMaxLines(1);
+        Save.setTextColor(Color.BLACK);
+        Save.setBackgroundColor(Color.GRAY);
 
         for (String s:Text) { terminal.setText(terminal.getText() + "\n" + s); }
         terminal.setBackgroundColor(Bg);
@@ -86,14 +104,23 @@ public class Terminal {
         rl = new RelativeLayout.LayoutParams(screenX, screenY);
 
         rl.height = screenY/15;
-        rl.width = screenX;
+        rl.width = (screenX-20)/2;
         rl.topMargin = 0;
-        RL.addView(input,rl);
+        rl.leftMargin = ((screenX/2)*0)+5;
+        RL.addView(Save,rl);
+
+        rl.height = screenY/15;
+        rl.width = (screenX-20)/2;
+        rl.topMargin = 0;
+        rl.leftMargin = ((screenX/2)+5)*1;
+        RL.addView(SaveNew,rl);
+
 
         rl = new RelativeLayout.LayoutParams(screenX, screenY);
         rl.height = screenY;
         rl.width = screenX;
         rl.topMargin = screenY/15;
+        rl.leftMargin = 0;
         RL.addView(terminal,rl);
 
         SV.addView(RL);

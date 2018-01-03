@@ -17,9 +17,6 @@ public class Compiler {
     private References Refer = new References();
     private LuaInterpreterJava Lua;
     private Functions Func;
-    private IfStatement IF;
-    private ForStatement FOR;
-    private WhileStatement WHILE;
 
 
     public Compiler(LuaInterpreterJava lua){
@@ -27,7 +24,7 @@ public class Compiler {
         Func = Lua.Func;
     }
 
-    public void Compile(String[] _Lines)
+    public String[] Compile(String[] _Lines)
     {
         //compile
         List<String> Lines = new ArrayList<>();
@@ -36,11 +33,12 @@ public class Compiler {
         {
             if (Lines.get(line).indexOf(Refer.Function) > -1)
             {
-                String[] args = Lines.get(line).substring(Lines.get(line).indexOf("(") + 1, Lines.get(line).lastIndexOf(")") - 1 - Lines.get(line).indexOf("(")).split(",");
+                String[] args = Lines.get(line).substring(Lines.get(line).indexOf("(") + 1, Lines.get(line).lastIndexOf(")")).split(",");
                 String name = Lines.get(line).substring(0, Lines.get(line).indexOf("(")).replace(Refer.Function, "").replace(" ", "");
                 boolean ret = false;
                 List<String> l = new ArrayList<>();
                 String openclose = "";
+                Lines.remove(line);
                 while (Lines.get(line).indexOf(Refer.FunctionEnd) < 0 || openclose != "")
                 {
                     if (Lines.get(line).indexOf(Refer.End) > -1) { Lines.set(line, Lines.get(line).replace(Refer.End, " ")); openclose += "}"; openclose = openclose.replace("{}", ""); if (openclose == "") { break; } }
@@ -54,5 +52,6 @@ public class Compiler {
                 Func.Set(name, l);
             }
         }
+        return Lines.toArray(new String[0]);
     }
 }

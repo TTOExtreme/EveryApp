@@ -3,8 +3,7 @@ package com.ttoextreme.everyapp;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.ContactsContract;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -20,49 +19,65 @@ import android.view.MenuItem;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.ttoextreme.everyapp.ActivityManipulation.ActMethods;
+import com.ttoextreme.everyapp.ActivityManipulation.ActProcessor;
 import com.ttoextreme.everyapp.Exemples.AppExStruct;
 import com.ttoextreme.everyapp.Exemples.AppsExemple;
 import com.ttoextreme.everyapp.FilesManipulation.ExplorerList;
 import com.ttoextreme.everyapp.Intetpreter.LuaInterpreterJava;
 import com.ttoextreme.everyapp.Intetpreter.References;
+import com.ttoextreme.everyapp.Menus.Menus;
+import com.ttoextreme.everyapp.Menus.Pressets;
+import com.ttoextreme.everyapp.Menus.Settings;
 import com.ttoextreme.everyapp.Terminal.Terminal;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class MainScreen extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
     private String MainFolderPath = "/sdcard"+"/EveryApp_Applications/";
     public  String ExplorerPath = MainFolderPath;
     private RelativeLayout MainScreen;
     private ExplorerList Explorer;
 
-    private LuaInterpreterJava Lua;
+    public LuaInterpreterJava Lua;
     private Terminal Term;
+    private Settings Setting;
+    public ActProcessor ActP;
+    public ActMethods ActMeth;
+    public Pressets Presset;
     private References ReferencesClass = new References();
-
     private AppsExemple AppEx = new AppsExemple();
+
+    private int MenuNum;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_screen);
 
+        MenuNum = new Menus().MAIN;
+
         MainScreen = findViewById(R.id.Act_MainScreen);
 
         Lua = new LuaInterpreterJava(this);
         Term = new Terminal(this);
         Term.SetOnkeyListerner(this::InputTerminal);
-
+        ActP = new ActProcessor(this);
+        ActMeth = new ActMethods(this);
         Explorer = new ExplorerList();
         Explorer.init(this);
+
+        Setting = new Settings(this);
+        Presset = new Pressets(this);
 
         CreateMethods();
 
@@ -80,35 +95,19 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
                 Exp.mkdir();
             }
             Exp = new File(ExplorerPath + "/Exemples/" + s.Name + ".eapp");
+            if (Exp.exists() && Presset.DevMode) {Exp.delete();}
             if (!Exp.exists()) {
                 try {
                     FileWriter writer = new FileWriter(Exp);
                     writer.append(s.Code);
                     writer.flush();
                     writer.close();
-
-                    /*
-                    Exp.createNewFile();
-                    OutputStream fo = new FileOutputStream(Exp);
-                    String hw = s.Code;
-                    fo.write(hw.getBytes());
-                    fo.close();
-                    //*/
                     System.out.println("file created: " + Exp);
                 } catch (IOException e) {
                     System.out.println("Error " + e);
                 }
-
             }
         }
-
-
-        UpdateExplorer(MainFolderPath);
-
-
-
-
-
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -139,21 +138,13 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 1: {
-
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     UpdateExplorer(MainFolderPath);
                 } else {
-
                     Toast.makeText(this, "Permission denied to read your External storage", Toast.LENGTH_SHORT).show();
                 }
                 return;
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
     }
 
@@ -163,9 +154,12 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
         Lua.AddMethod(ReferencesClass.Print, ReferencesClass.Print, this::Print);
         Lua.AddMethod(ReferencesClass.Write, ReferencesClass.Write, this::Write);
         Lua.AddMethod(ReferencesClass.Clear, ReferencesClass.Clear, this::Clear);
+
     }
 
-    public String StartTerminal(String[] s1,String s2){ MainScreen.removeAllViews(); MainScreen.addView(Term.getTerm(),0);  return "";}
+    public String StartTerminal(String[] s1,String s2){ MainScreen.removeAllViews(); MainScreen.addView(Term.getView(),0);  return "";}
+    public String StartSettings(String[] s1,String s2){ MainScreen.removeAllViews(); MainScreen.addView(Setting.getView(),0);  return "";}
+    public String StartAct(String[] s1,String s2){ MainScreen.removeAllViews(); MainScreen.addView(ActP.getView(),0);  return "";}
 
     public String Print(String[] s1,String s2){String str = s1[0].replace("\"",""); Term.Text.add(str); System.out.println(str); Term.Update(); return "";}
     public String Write(String[] s1,String s2){String str = s1[0].replace("\"",""); Term.Text.set(Term.Text.size()-1,Term.Text.get(Term.Text.size()-1)+str); Term.Update(); return "";}
@@ -195,8 +189,15 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
             while ((str = in.readLine()) != null) {
                 list.add(str);
             }
-            Lua.DoFile(list.toArray(new String[0]));
             StartTerminal(new String[]{}, " ");
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Lua.DoFile(list.toArray(new String[0]));
+
+                }
+            }, 50);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -215,20 +216,49 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main_screen, menu);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.clear();
+        if(MenuNum==new Menus().MAIN){
+            getMenuInflater().inflate(R.menu.main_screen, menu);
+        }
+        if(MenuNum==new Menus().EXPLORER){
+            getMenuInflater().inflate(R.menu.explorer_screen, menu);
+        }
+        if(MenuNum==new Menus().TERMINAL){
+            getMenuInflater().inflate(R.menu.terminal_screen, menu);
+        }
+        if(MenuNum==new Menus().EDITOR){
+            getMenuInflater().inflate(R.menu.editor_screen, menu);
+        }
+        //return super.onPrepareOptionsMenu(menu);
+        return true;
+    }
 
-        //noinspection SimplifiableIfStatement
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
         if (id == R.id.action_settings) {
+            StartSettings(new String[]{},"");
+            return true;
+        }
+        if (id == R.id.action_new) {
+            return true;
+        }
+        if (id == R.id.action_restart) {
+            return true;
+        }
+        if (id == R.id.action_save) {
+            return true;
+        }
+        if (id == R.id.action_savenew) {
+            return true;
+        }
+        if (id == R.id.action_delete) {
             return true;
         }
 
@@ -243,13 +273,18 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
 
         if (id == R.id.bot_Home) {
             MainScreen.removeAllViews();
+            MenuNum = new Menus().MAIN;
         } else if (id == R.id.bot_NewFile) {
+            MenuNum = new Menus().EDITOR;
 
         } else if (id == R.id.bot_OpenFile) {
+            MenuNum = new Menus().EXPLORER;
             UpdateExplorer(MainFolderPath);
         } else if (id == R.id.bot_Explorer) {
+            MenuNum = new Menus().EXPLORER;
             UpdateExplorer(ExplorerPath);
         } else if (id == R.id.bot_Terminal){
+            MenuNum = new Menus().TERMINAL;
             StartTerminal(new String[]{}, " ");
         }
 
@@ -257,4 +292,5 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
 }

@@ -13,6 +13,7 @@ import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Display;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -41,8 +42,9 @@ public class ExplorerList {
 
     public void init(MainScreen ct){
         context = ct;
-    }
 
+
+    }
 
     public void addList(String name, byte type, String Description){
         ListFiles lf = new ListFiles();

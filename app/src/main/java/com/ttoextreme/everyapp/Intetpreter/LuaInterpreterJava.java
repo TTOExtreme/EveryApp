@@ -44,8 +44,8 @@ public class LuaInterpreterJava {
     public LuaInterpreterJava(Activity ms){
         Main=ms;
         MethodsClass = new Methods(this);
-        Comp = new Compiler(this);
         Func = new Functions(this);
+        Comp = new Compiler(this);
         IF = new IfStatement(this);
         FOR = new ForStatement(this);
         WHILE = new WhileStatement(this);
@@ -59,7 +59,7 @@ public class LuaInterpreterJava {
 
     public void DoFile(String[] program){
         Program = program;
-        Comp.Compile(program);
+        program = Comp.Compile(program);
         for (int i=LineAt;i<program.length;i++) {
             if(program[i].indexOf(Refer.Delay)>-1){
                 final String[] _program = new String[program.length-i-1];
@@ -81,57 +81,78 @@ public class LuaInterpreterJava {
                 return;
             }else{
                 if(MethodsClass.MethodValid(program[i])){
-                    MethodsClass.Get(program[i]).apply(ExtractArgs(Vars.Replace(program[i])),"");
+                    MethodsClass.Get(program[i]).apply(ExtractArgs(Vars.Replace(program[i])),program[i]);
                 }else{
-                    //++; --;
-                    if(program[i].indexOf("++")>-1){
-                        String v=program[i].replace("++","").replace(";","").replace(" ","");
-                        Vars.VarSum(v,1);
-                    }
-                    if(program[i].indexOf("--")>-1){
-                        String v=program[i].replace("--","").replace(";","").replace(" ","");
-                        Vars.VarSub(v,1);
-                    }
+                    if(Func.Exist(program[i])){
+                        DoFile(Func.Get(program[i]).toArray(new String[0]));
+                    }else {
+                        //++; --;
+                        if (program[i].indexOf("++") > -1) {
+                            String v = program[i].replace("++", "").replace(";", "").replace(" ", "");
+                            Vars.VarSum(v, 1);
+                        }
+                        if (program[i].indexOf("--") > -1) {
+                            String v = program[i].replace("--", "").replace(";", "").replace(" ", "");
+                            Vars.VarSub(v, 1);
+                        }
 
-                    //var creation
-                    if(program[i].indexOf(" = ")>-1){
-                        String[] v=program[i].replace(";","").replace(" ","").split("=");
-                        Vars.VarAdd(new VariablesStruct(v[0],new VariablesStruct().LOCAL,v[1]));
-                    }
+                        //var creation
+                        if (program[i].indexOf(" = ") > -1) {
+                            String[] v = program[i].replace(";", "").replace(" ", "").split("=");
+                            Vars.VarAdd(new VariablesStruct(v[0], new VariablesStruct().LOCAL, v[1]));
+                        }
 
-
-                    //conditionals
-                    if(program[i].indexOf(Refer.If)>-1 && program[i].indexOf(Refer.Then)>-1){
-                        List<String> p = new ArrayList<>();
-                        for (int j = 0;j<program.length-i;j++){p.add(program[i+j]); program[i+j]="";}
-                        p=IF.IfStatement(p);
-                        for (int j = 0;j<p.size();j++){program[i+j]=p.get(j);}
-                        return;
-                    }
-                    if(program[i].indexOf(Refer.For)>-1 && program[i].indexOf(Refer.Do)>-1){
-                        List<String> p = new ArrayList<>();
-                        for (int j = 0;j<program.length-i;j++){p.add(program[i+j]); program[i+j]="";}
-                        FOR.FOR(p);
-                        for (int j = 0;j<p.size();j++){program[i+j]=p.get(j);}
-                        Vars.BGExecution+="{";
-                        Program = program;
-                        PauseContinue();
-                        return;
-                    }
-                    if(program[i].indexOf(Refer.While)>-1 && program[i].indexOf(Refer.Do)>-1){
-                        List<String> p = new ArrayList<>();
-                        for (int j = 0;j<program.length-i;j++){p.add(program[i+j]); program[i+j]="";}
-                        WHILE.WhileStatement(p);
-                        for (int j = 0;j<p.size();j++){program[i+j]=p.get(j);}
-                        Vars.BGExecution+="{";
-                        Program = program;
-                        PauseContinue();
-                        return;
+                        //conditionals
+                        if (program[i].indexOf(Refer.If) > -1 && program[i].indexOf(Refer.Then) > -1) {
+                            List<String> p = new ArrayList<>();
+                            for (int j = 0; j < program.length - i; j++) {
+                                p.add(program[i + j]);
+                                program[i + j] = "";
+                            }
+                            p = IF.IfStatement(p);
+                            for (int j = 0; j < p.size(); j++) {
+                                program[i + j] = p.get(j);
+                            }
+                            return;
+                        }
+                        if (program[i].indexOf(Refer.For) > -1 && program[i].indexOf(Refer.Do) > -1) {
+                            List<String> p = new ArrayList<>();
+                            for (int j = 0; j < program.length - i; j++) {
+                                p.add(program[i + j]);
+                                program[i + j] = "";
+                            }
+                            FOR.FOR(p);
+                            for (int j = 0; j < p.size(); j++) {
+                                program[i + j] = p.get(j);
+                            }
+                            Vars.BGExecution += "{";
+                            Program = program;
+                            PauseContinue();
+                            return;
+                        }
+                        if (program[i].indexOf(Refer.While) > -1 && program[i].indexOf(Refer.Do) > -1) {
+                            List<String> p = new ArrayList<>();
+                            for (int j = 0; j < program.length - i; j++) {
+                                p.add(program[i + j]);
+                                program[i + j] = "";
+                            }
+                            WHILE.WhileStatement(p);
+                            for (int j = 0; j < p.size(); j++) {
+                                program[i + j] = p.get(j);
+                            }
+                            Vars.BGExecution += "{";
+                            Program = program;
+                            PauseContinue();
+                            return;
+                        }
                     }
                 }
             }
         }
         LineAt=0;
+        if(Vars.BGExecution!="") {
+            Vars.BGExecution += "}";
+        }
         //MethodsClass.Get(Refer.Print).apply(new String[]{Refer.EndProgram},"");
     }
 
