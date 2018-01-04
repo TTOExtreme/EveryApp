@@ -100,6 +100,7 @@ public class ForStatement {
             //prog.RemoveAt(0);
             count++;
             if(count>=Lines.size()-1){count=1;}
+            if(count>=Lines.size()-1){count=0;}
             if (Lines.get(count).indexOf(Refer.Do) > -1 && Lines.get(count).indexOf(Refer.Then) > -1) { openclose += "{"; }
             _prog = new ArrayList<>();
             for (String s : Lines) { _prog.add(s); }

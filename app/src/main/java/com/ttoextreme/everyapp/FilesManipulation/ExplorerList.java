@@ -3,6 +3,7 @@ package com.ttoextreme.everyapp.FilesManipulation;
 import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.AssetManager;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
@@ -11,12 +12,15 @@ import android.os.Environment;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Display;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -82,10 +86,40 @@ public class ExplorerList {
                 @Override
                 public void onClick(View view) {
                     if(bts.get(finalI).Type==FOLDER) {
-                        context.UpdateExplorer(bts.get(finalI).Description);
+                        context.ExplorerPath = bts.get(finalI).Description;
+                        context.UpdateExplorer(context.ExplorerPath);
                     }else{
                         context.OpenFile(bts.get(finalI).Description);
                     }
+                }
+            });
+            bt.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if(bts.get(finalI).Type==FOLDER) {
+                        context.ExplorerPath = bts.get(finalI).Description;
+                        context.UpdateExplorer(context.ExplorerPath);
+                    }else{
+                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                        builder.setTitle("File Name");
+
+                        builder.setPositiveButton("Open", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                context.OpenFile(bts.get(finalI).Description);
+                            }
+                        });
+                        builder.setNegativeButton("Edit", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                context.OpenEditor(bts.get(finalI).Description);
+                            }
+                        });
+
+                        builder.show();
+
+                    }
+                    return false;
                 }
             });
 

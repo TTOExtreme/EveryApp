@@ -10,6 +10,7 @@ git commit -m ${DATEComit}
 git checkout -b master
 git remote add origin "https://github.com/TTOExtreme/EveryApp.git"
 git push -u origin master
+git checkout ${DATE}
 
 echo "finished"
 sleep 3

@@ -28,6 +28,7 @@ public class Editor {
     private EditText terminal;
     private Button Save;
     private Button SaveNew;
+    public String Path;
     public List<String> Text = new ArrayList<String>();
     public int Bg = Color.BLACK;
     public int Tx = Color.WHITE;
@@ -40,13 +41,12 @@ public class Editor {
     public Editor(Activity act){
         Main=act;
         terminal = new EditText(Main);
-        Save = new Button(Main);
-        SaveNew = new Button(Main);
         RL = new RelativeLayout(Main);
         SV = new ScrollView(Main);
     }
 
     public void Edit(String path){
+        Path = path;
         Text = new ArrayList<String>();
         if(new File(path).exists()){
             BufferedReader in = null;
@@ -63,21 +63,11 @@ public class Editor {
         }
     }
 
-    public void SetOnkeyListerner(BiFunction<String[],String,String> keylistener){
-        Save.setOnKeyListener(new View.OnKeyListener() {
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-
-                    keylistener.apply(((EditText)v).getText().toString().split(";"),"");
-                    return true;
-                }
-                return false;
-            }
-        });
+    public String GetText(){
+        return terminal.getText().toString();
     }
 
-
-    public View getTerm(){
+    public View getView(){
 
         RL.removeAllViews();
         SV.removeAllViews();
@@ -90,49 +80,24 @@ public class Editor {
         int screenX = size.x;
         int screenY = size.y;
 
-        terminal.setText(Text.toString());
-
-        Save.setTextColor(Color.BLACK);
-        Save.setBackgroundColor(Color.GRAY);
-
-        for (String s:Text) { terminal.setText(terminal.getText() + "\n" + s); }
+        String t ="";
+        for (String s:Text) { t+=s+"\n";}
+        t=t.substring(0,t.lastIndexOf("\n"));
+        terminal.setText(t);
         terminal.setBackgroundColor(Bg);
         terminal.setTextColor(Tx);
         terminal.setTextSize(TexSize);
         terminal.setGravity(Gravity.TOP);
 
-        rl = new RelativeLayout.LayoutParams(screenX, screenY);
-
-        rl.height = screenY/15;
-        rl.width = (screenX-20)/2;
-        rl.topMargin = 0;
-        rl.leftMargin = ((screenX/2)*0)+5;
-        RL.addView(Save,rl);
-
-        rl.height = screenY/15;
-        rl.width = (screenX-20)/2;
-        rl.topMargin = 0;
-        rl.leftMargin = ((screenX/2)+5)*1;
-        RL.addView(SaveNew,rl);
-
 
         rl = new RelativeLayout.LayoutParams(screenX, screenY);
         rl.height = screenY;
         rl.width = screenX;
-        rl.topMargin = screenY/15;
+        rl.topMargin = 0;
         rl.leftMargin = 0;
         RL.addView(terminal,rl);
 
         SV.addView(RL);
         return SV;
-    }
-
-    public void Update(){
-        terminal.setText("");
-
-        for (String s:Text) { terminal.setText(terminal.getText() + "\n" + s); }
-        terminal.setBackgroundColor(Bg);
-        terminal.setTextColor(Tx);
-        terminal.setTextSize(TexSize);
     }
 }
