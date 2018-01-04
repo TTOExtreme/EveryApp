@@ -21,6 +21,7 @@ public class References {
     public String Comment = "--";
 
     public String Print = "print";
+    public String PrintDev = "debug";
     public String Write = "write";
     public String Clear = "clear";
     public String Delay = "delay";

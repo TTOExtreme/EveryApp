@@ -27,19 +27,22 @@ import java.util.List;
 
 public class Pressets {
 
-    public float TextSize = 12;
+    private MainScreen Main;
+
+    public int TextSize = 12;
     public boolean DarkTheme = false;
     public boolean DevMode = false;
+    public boolean Reset = false;
 
     SharedPreferences sharedPref;
     SharedPreferences.Editor editor;
     String path = "";
 
     public Pressets(MainScreen act){
+        Main=act;
         path= act.getFilesDir().getAbsolutePath()+"/prefs";
         File f = new File(path);
         if(!f.exists()){ Write();}
-        Load();
     }
 
     private void Write(){
@@ -54,12 +57,13 @@ public class Pressets {
             writer.append(s);
             writer.flush();
             writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+            Main.Lua.DoLine(Main.Lua.Refer.PrintDev+"(Saving Settings)");
+        } catch (Exception e) {
+            Main.Lua.DoLine(Main.Lua.Refer.PrintDev+"(Error Saving Settings: \n"+ e.getMessage() +")");
         }
     }
 
-    private void Load(){
+    public void Load(){
         try {
             BufferedReader in = new BufferedReader(new FileReader(path));
             List<String> list = new ArrayList<String>();
@@ -69,13 +73,18 @@ public class Pressets {
             }
             if(list.get(0).equals("1")){DarkTheme=true;}else{DarkTheme = false;}
             if(list.get(1).equals("1")){DevMode=true;}else{DevMode=false;}
+            Main.Lua.DoLine(Main.Lua.Refer.PrintDev+"(Loading Settings)");
         } catch (Exception e) {
-            e.printStackTrace();
+            Main.Lua.DoLine(Main.Lua.Refer.PrintDev+"(Error Loading Settings: \n"+ e.getMessage() +")");
         }
     }
 
     public void setDarkTheme(boolean b){
-        DarkTheme =b;
+        DarkTheme = b;
+        Write();
+    }
+    public void setReset(boolean b){
+        Reset = b;
         Write();
     }
     public void setTextSize(int b){
@@ -83,7 +92,7 @@ public class Pressets {
         Write();
     }
     public void setDevMode(boolean b){
-        DevMode=b;
+        DevMode = b;
         Write();
     }
 }

@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Process;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -44,6 +45,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 public class MainScreen extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -66,6 +68,8 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
 
     private int MenuNum;
 
+    private Handler MainThread;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +80,9 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
 
         MainScreen = findViewById(R.id.Act_MainScreen);
 
+        Setting = new Settings(this);
+        Presset = new Pressets(this);
+
         Lua = new LuaInterpreterJava(this);
         Term = new Terminal(this);
         Term.SetOnkeyListerner(this::InputTerminal);
@@ -85,9 +92,8 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
         Explorer.init(this);
         EditScreen = new Editor(this);
 
-        Setting = new Settings(this);
-        Presset = new Pressets(this);
 
+        Presset.Load();
         CreateMethods();
 
         //ask permition
@@ -96,13 +102,19 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
 
 
         //Creates the Example files
-        for (AppExStruct s : AppEx.Exemples) {
-            File Exp = new File(ExplorerPath + "/Exemples/");
-            if(!Exp.exists()){Exp.mkdir();}
-            Exp = new File(ExplorerPath + "/Exemples/" + s.Name + ".eapp");
-            if (Exp.exists() && Presset.DevMode) {Exp.delete();}
-            if (!Exp.exists()) {
-                SaveFile(Exp.getPath(),s.Code);
+        if(Presset.Reset) {
+            for (AppExStruct s : AppEx.Exemples) {
+                File Exp = new File(ExplorerPath + "/Exemples/");
+                if (!Exp.exists()) {
+                    Exp.mkdir();
+                }
+                Exp = new File(ExplorerPath + "/Exemples/" + s.Name + ".eapp");
+                if (Exp.exists() && Presset.DevMode) {
+                    Exp.delete();
+                }
+                if (!Exp.exists()) {
+                    SaveFile(Exp.getPath(), s.Code);
+                }
             }
         }
 
@@ -113,14 +125,12 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
             }
         });
 
+        //navigation Drawer
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
@@ -149,6 +159,7 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
         Lua.AddMethod(ReferencesClass.StartTerminal,ReferencesClass.StartTerminal,this::StartTerminal);
 
         Lua.AddMethod(ReferencesClass.Print, ReferencesClass.Print, this::Print);
+        Lua.AddMethod(ReferencesClass.PrintDev, ReferencesClass.PrintDev, this::PrintDev);
         Lua.AddMethod(ReferencesClass.Write, ReferencesClass.Write, this::Write);
         Lua.AddMethod(ReferencesClass.Clear, ReferencesClass.Clear, this::Clear);
 
@@ -158,9 +169,10 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
     public String StartSettings(String[] s1,String s2){ MainScreen.removeAllViews(); MainScreen.addView(Setting.getView(),0);  return "";}
     public String StartAct(String[] s1,String s2){ MainScreen.removeAllViews(); MainScreen.addView(ActP.getView(),0);  return "";}
 
-    public String Print(String[] s1,String s2){String str = s1[0].replace("\"",""); Term.Text.add(str); System.out.println(str); Term.Update(); return "";}
-    public String Write(String[] s1,String s2){String str = s1[0].replace("\"",""); Term.Text.set(Term.Text.size()-1,Term.Text.get(Term.Text.size()-1)+str); Term.Update(); return "";}
-    public String Clear(String[] s1,String s2){ Term.Text = new ArrayList<String>(); Term.Update(); return "";}
+    public String Print(String[] s1,String s2){String str = s1[0].replace("\"","");Term.Text+="\n"+str;Term.Update();return "";}
+    public String PrintDev(String[] s1,String s2){String str = s1[0].replace("\"","");Term.TextDev+="\n"+str;Term.Update();return "";}
+    public String Write(String[] s1,String s2){String str = s1[0].replace("\"",""); Term.Text+=str; return "";}
+    public String Clear(String[] s1,String s2){ Term.Text = ""; return "";}
 
     public void UpdateExplorer(String path){
         ExplorerPath = path;
@@ -176,7 +188,14 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
     }
 
     public String InputTerminal(String[] s1,String s2){
-        Lua.DoFile(s1);
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                String uuid1 = "{" + UUID.randomUUID().toString()+"}";
+                Lua.DoFile(s1,uuid1);
+            }
+        }, 50);
         return "";
     }
 
@@ -199,11 +218,14 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    Lua.DoFile(list.toArray(new String[0]));
-
+                    String uuid1 = "{" + UUID.randomUUID().toString()+"}";
+                    Lua.DoLine(Lua.Refer.PrintDev+"(\"Opening App: "+ path +"\")");
+                    Lua.DoFile(list.toArray(new String[0]),uuid1);
                 }
             }, 50);
         } catch (IOException e) {
+
+            Lua.DoLine(Lua.Refer.PrintDev+"(Error Loading App: "+ path +"\n\n" + e.getMessage() + ")");
             e.printStackTrace();
         }
 
@@ -216,9 +238,9 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
             writer.append(Code);
             writer.flush();
             writer.close();
-            System.out.println("file created: " + Exp);
+            Lua.DoLine(Lua.Refer.PrintDev+"(file created: " + Exp +")");
         } catch (IOException e) {
-            System.out.println("Error " + e);
+            Lua.DoLine(Lua.Refer.PrintDev+"(Error " + e.getMessage() +")");
         }
     }
 
@@ -245,15 +267,19 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.clear();
         if(MenuNum==new Menus().MAIN){
+            Setting.stop=true;
             getMenuInflater().inflate(R.menu.main_screen, menu);
         }
         if(MenuNum==new Menus().EXPLORER){
+            Setting.stop=true;
             getMenuInflater().inflate(R.menu.explorer_screen, menu);
         }
         if(MenuNum==new Menus().TERMINAL){
+            Setting.stop=true;
             getMenuInflater().inflate(R.menu.terminal_screen, menu);
         }
         if(MenuNum==new Menus().EDITOR){
+            Setting.stop=true;
             getMenuInflater().inflate(R.menu.editor_screen, menu);
         }
         //return super.onPrepareOptionsMenu(menu);
@@ -318,18 +344,22 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
         int id = item.getItemId();
 
         if (id == R.id.bot_Home) {
+            Setting.stop=true;
             MainScreen.removeAllViews();
             MenuNum = new Menus().MAIN;
-        } else if (id == R.id.bot_NewFile) {
-            MenuNum = new Menus().EDITOR;
-
+        } else if (id == R.id.bot_App) {
+            Setting.stop=true;
+            //MenuNum = new Menus().EDITOR;
         } else if (id == R.id.bot_OpenFile) {
+            Setting.stop=true;
             MenuNum = new Menus().EXPLORER;
             UpdateExplorer(MainFolderPath);
         } else if (id == R.id.bot_Explorer) {
+            Setting.stop=true;
             MenuNum = new Menus().EXPLORER;
             UpdateExplorer(ExplorerPath);
         } else if (id == R.id.bot_Terminal){
+            Setting.stop=true;
             MenuNum = new Menus().TERMINAL;
             StartTerminal(new String[]{}, " ");
         }

@@ -158,7 +158,7 @@ public class ExplorerList {
 
             }
         }catch (Exception e){
-
+            context.Lua.DoLine(context.Lua.Refer.PrintDev+"(Error Loading Folder: "+ path + "\n"+ e.getMessage() +")");
         }
 
     }

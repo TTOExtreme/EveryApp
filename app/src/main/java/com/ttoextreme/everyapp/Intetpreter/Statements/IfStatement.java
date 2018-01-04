@@ -9,6 +9,7 @@ import com.ttoextreme.everyapp.Intetpreter.StorageValues.Variables;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by ttoextreme on 11/8/17.
@@ -79,9 +80,9 @@ public class IfStatement {
                 }
             }
 
-            Lua.DoFile(program.toArray(new String[0]));
+            String uuid1 = "{" + UUID.randomUUID().toString()+"}";
+            Lua.DoFile(program.toArray(new String[0]),uuid1);
 
-            Vars.BGExecution+="}";
             return prog;
         }
         else
@@ -114,7 +115,8 @@ public class IfStatement {
                     if (prog.size() == 0) { break; }
                 }
 
-                Lua.DoFile(program.toArray(new String[0]));
+                String uuid1 = "{" + UUID.randomUUID().toString()+"}";
+                Lua.DoFile(program.toArray(new String[0]),uuid1);
                 Vars.BGExecution+="}";
                 return prog;
             }

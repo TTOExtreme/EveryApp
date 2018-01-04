@@ -9,6 +9,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.Switch;
@@ -26,27 +27,27 @@ import java.util.List;
 public class Settings {
 
     private MainScreen Main;
-    RelativeLayout RL;
-    ScrollView SV;
+    private RelativeLayout RL;
+    private ScrollView SV;
 
-    Switch swt1;
-    Switch swt2;
+    public boolean stop = false;
 
-
-
-    List<String> Options;
+    private EditText txs;
+    private Switch swt1;
+    private Switch swt2;
+    private Switch swt3;
 
     public Settings(MainScreen act){
         Main=act;
         RL = new RelativeLayout(Main);
         SV = new ScrollView(Main);
-
     }
 
 
 
     public View getView(){
 
+        int count=0;
         RL.removeAllViews();
         SV.removeAllViews();
         RelativeLayout.LayoutParams rl;
@@ -70,16 +71,39 @@ public class Settings {
         rl = new RelativeLayout.LayoutParams(screenX, screenY);
         rl.height = screenY/15;
         rl.width = screenX/2;
-        rl.topMargin = (screenY/15)*0 + 10;
+        rl.topMargin = ((screenY/15)+10)*count + 10;
         rl.leftMargin = 10;
         Lab.setText("Dark Theme");
         RL.addView(Lab,rl);
         swt1.setChecked(Main.Presset.DarkTheme);
+        rl = new RelativeLayout.LayoutParams(screenY/15, screenY/15);
+        rl.height = screenY/15;
+        rl.width = screenX/2;
+        rl.topMargin = ((screenY/15)+10)*count +10;
+        rl.leftMargin = screenX-screenY/15;
+        RL.addView(swt1,rl);
+        count++;
+
+        Lab = new TextView(Main);
+        Lab.setTextSize(20);
+        txs = new EditText(Main);
         rl = new RelativeLayout.LayoutParams(screenX, screenY);
         rl.height = screenY/15;
         rl.width = screenX/2;
-        rl.topMargin = ((screenY/15)+10)*0 +10;
-        RL.addView(swt1,rl);
+        rl.topMargin = ((screenY/15)+10)*count;
+        rl.leftMargin = screenX-screenY/15;
+        rl.leftMargin = 10;
+        Lab.setText("Dev Mode");
+        RL.addView(Lab,rl);
+        int val=Main.Presset.TextSize;
+        txs.setText(String.valueOf(val));
+        rl = new RelativeLayout.LayoutParams(screenY/15, screenY/15);
+        rl.height = screenY/15;
+        rl.width = screenX/2;
+        rl.topMargin = ((screenY/15)+10)*count;
+        rl.leftMargin = screenX-screenY/15;
+        RL.addView(txs,rl);
+        count++;
 
         Lab = new TextView(Main);
         Lab.setTextSize(20);
@@ -87,17 +111,38 @@ public class Settings {
         rl = new RelativeLayout.LayoutParams(screenX, screenY);
         rl.height = screenY/15;
         rl.width = screenX/2;
-        rl.topMargin = ((screenY/15)+10)*1;
+        rl.topMargin = ((screenY/15)+10)*count;
+        rl.leftMargin = screenX-screenY/15;
         rl.leftMargin = 10;
         Lab.setText("Dev Mode");
         RL.addView(Lab,rl);
         swt2.setChecked(Main.Presset.DevMode);
+        rl = new RelativeLayout.LayoutParams(screenY/15, screenY/15);
+        rl.height = screenY/15;
+        rl.width = screenX/2;
+        rl.topMargin = ((screenY/15)+10)*count;
+        rl.leftMargin = screenX-screenY/15;
+        RL.addView(swt2,rl);
+        count++;
+
+        Lab = new TextView(Main);
+        Lab.setTextSize(20);
+        swt3 = new Switch(Main);
         rl = new RelativeLayout.LayoutParams(screenX, screenY);
         rl.height = screenY/15;
         rl.width = screenX/2;
-        rl.topMargin = ((screenY/15)+10)*1;
-        RL.addView(swt2,rl);
-
+        rl.topMargin = ((screenY/15)+10)*count;
+        rl.leftMargin = 10;
+        Lab.setText("Reset on Start");
+        RL.addView(Lab,rl);
+        swt3.setChecked(Main.Presset.Reset);
+        rl = new RelativeLayout.LayoutParams(screenY/15, screenY/15);
+        rl.height = screenY/15;
+        rl.width = screenX/2;
+        rl.topMargin = ((screenY/15)+10)*count;
+        rl.leftMargin = screenX-screenY/15;
+        RL.addView(swt3,rl);
+        count++;
 
         SV.addView(RL);
 
@@ -109,10 +154,17 @@ public class Settings {
     private void Update() {
         Main.Presset.setDarkTheme(swt1.isChecked());
         Main.Presset.setDevMode(swt2.isChecked());
+        Main.Presset.setReset(swt3.isChecked());
+        Main.Presset.setTextSize(Integer.parseInt(txs.getText().toString()));
+
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
+                if(stop) {
+                    stop=false;
+                    return;
+                }
                 Update();
             }
         }, 500);

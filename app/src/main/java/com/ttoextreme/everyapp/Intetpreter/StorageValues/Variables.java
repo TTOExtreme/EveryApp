@@ -1,5 +1,6 @@
 package com.ttoextreme.everyapp.Intetpreter.StorageValues;
 
+import com.ttoextreme.everyapp.Intetpreter.LuaInterpreterJava;
 import com.ttoextreme.everyapp.Intetpreter.References;
 
 import java.util.ArrayList;
@@ -14,6 +15,10 @@ public class Variables {
     public List<VariablesStruct> LV = new ArrayList<>();
     public List<VariablesStruct> GV = new ArrayList<>();
     public String BGExecution = "";
+
+    private LuaInterpreterJava Lua;
+
+    public Variables(LuaInterpreterJava lua){Lua=lua;}
 
     public String Replace(String command)
     {
@@ -99,7 +104,7 @@ public class Variables {
                 }
                 catch(Exception e)
                 {
-                    System.err.println(e);
+                    Lua.DoLine(Lua.Refer.PrintDev+"(Error Operation on Variable: "+ e.getMessage() +")");
                 }
             }
         }
@@ -119,7 +124,7 @@ public class Variables {
                 }
                 catch(Exception e)
                 {
-                    System.err.println(e);
+                    Lua.DoLine(Lua.Refer.PrintDev+"(Error Operation on Variable: "+ e.getMessage() +")");
                 }
             }
         }
@@ -140,6 +145,7 @@ public class Variables {
                     if (va.Name.equals(v.Name)) { va = v; LV.set(i,va);  return; }
                 }
                 LV.add(v);
+                Lua.DoLine(Lua.Refer.PrintDev+"(\"Add Variable: "+ v.Name +"\")");
             }
             else
             {
@@ -149,6 +155,7 @@ public class Variables {
                     if (va.Name.equals(v.Name)) { va = v; GV.set(i,va);  return; }
                 }
                 GV.add(v);
+                Lua.DoLine(Lua.Refer.PrintDev+"(\"Add Variable: "+ v.Name +"\")");
             }
         }
     }
@@ -161,8 +168,12 @@ public class Variables {
             for (int i = 0; i < LV.size(); i++)
             {
                 VariablesStruct va = LV.get(i);
-                if (va.Name == name) { va = new VariablesStruct(name,type,value); return; }
-                LV.set(i,va);
+                if (va.Name.equals(name)) {
+                    va = new VariablesStruct(name, type, value);
+                    LV.remove(i);
+                    LV.add(i, va);
+                    return;
+                }
             }
             LV.add(new VariablesStruct(name, type, value));
         }
@@ -171,7 +182,7 @@ public class Variables {
             for (int i = 0; i < GV.size(); i++)
             {
                 VariablesStruct va = GV.get(i);
-                if (va.Name == name) { va = new VariablesStruct(name,type,value); return; }
+                if (va.Name.equals(name)) { va = new VariablesStruct(name,type,value); return; }
                 GV.set(i,va);
             }
             GV.add(new VariablesStruct(name, type, value));
@@ -186,9 +197,9 @@ public class Variables {
             VariablesStruct va = LV.get(i);
             if (va.Name.equals(name)) {
                 if(LV.remove(va)){
-                    System.out.print("removed");
+                    Lua.DoLine(Lua.Refer.PrintDev+"(\"Removed Variable: "+ va.Name +"\")");
                 }else{
-                    System.out.print("Error removing");
+                    Lua.DoLine(Lua.Refer.PrintDev+"(\"Error Removing Variable: "+ va.Name +"\n !!!!!!if you see this message that is a problem!!!!!!!\")");
                 }
                 return;
             }
@@ -196,7 +207,14 @@ public class Variables {
         for (int i = 0; i < GV.size(); i++)
         {
             VariablesStruct va = GV.get(i);
-            if (va.Name.equals(name)) { GV.remove(va); return; }
+            if (va.Name.equals(name)) {
+                if(GV.remove(va)){
+                    Lua.DoLine(Lua.Refer.PrintDev+"(\"Removed Variable: "+ va.Name +"\")");
+                }else{
+                    Lua.DoLine(Lua.Refer.PrintDev+"(\"Error Removing Variable: "+ va.Name +"\n !!!!!!if you see this message that is a problem!!!!!!!\")");
+                }
+                return;
+            }
         }
     }
 }

@@ -12,6 +12,8 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 
+import com.ttoextreme.everyapp.MainScreen;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -24,7 +26,7 @@ import java.util.function.BiFunction;
  */
 
 public class Editor {
-    private Activity Main;
+    private MainScreen Main;
     private EditText terminal;
     private Button Save;
     private Button SaveNew;
@@ -38,7 +40,7 @@ public class Editor {
     RelativeLayout RL;
     ScrollView SV;
 
-    public Editor(Activity act){
+    public Editor(MainScreen act){
         Main=act;
         terminal = new EditText(Main);
         RL = new RelativeLayout(Main);
@@ -57,7 +59,7 @@ public class Editor {
                     Text.add(str);
                 }
             }catch (Exception e){
-                System.err.print(e);
+                Main.Lua.DoLine(Main.Lua.Refer.PrintDev+"(Error Reading File: "+ path + "\n"+ e.getMessage() +")");
             }
 
         }
