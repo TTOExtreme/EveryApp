@@ -8,41 +8,58 @@ import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.webkit.WebSettings;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
+import com.ttoextreme.everyapp.MainScreen;
+
+import java.io.Console;
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.logging.Handler;
 
 /**
  * Created by ttoextreme on 11/9/17.
  */
 
 public class Terminal {
-    private Activity Main;
+    private MainScreen Main;
     private EditText terminal;
+    private EditText terminalDev;
     private EditText input;
-    public List<String> Text = new ArrayList<String>();
+    public String Text = "";
+    public String TextDev = "";
     public int Bg = Color.BLACK;
     public int Tx = Color.WHITE;
-    public float TexSize = 12;
+    public float TexSize = 14;
 
 
+    RelativeLayout MainRL;
     RelativeLayout RL;
     ScrollView SV;
 
-    public Terminal(Activity act){
+    public Terminal(MainScreen act){
         Main=act;
+        Main.DebugAct.Append("[Init] Initializing Terminal Segment");
         terminal = new EditText(Main);
+        Main.DebugAct.Append("[Init] - Create Terminal View");
+        terminalDev = new EditText(Main);
+        Main.DebugAct.Append("[Init] - Create Developer Terminal View");
         input = new EditText(Main);
+        Main.DebugAct.Append("[Init] - Create User Input");
+        MainRL = new RelativeLayout(Main);
+        Main.DebugAct.Append("[Init] - Create View Group");
         RL = new RelativeLayout(Main);
         SV = new ScrollView(Main);
+        TexSize = Main.Presset.TextSize;
+        Main.DebugAct.Append("[Init] Finished Terminal Load");
     }
 
     public void SetOnkeyListerner(BiFunction<String[],String,String> keylistener){
@@ -58,8 +75,10 @@ public class Terminal {
     }
 
 
-    public View getTerm(){
+    public View getView(){
+        Main.DebugAct.Append("[Event] Open Terminal View");
 
+        MainRL.removeAllViews();
         RL.removeAllViews();
         SV.removeAllViews();
         RelativeLayout.LayoutParams rl;
@@ -71,41 +90,62 @@ public class Terminal {
         int screenX = size.x;
         int screenY = size.y;
 
-        terminal.setText("");
 
         input.setTextColor(Color.BLACK);
         input.setBackgroundColor(Color.DKGRAY);
         input.setMaxLines(1);
 
-        for (String s:Text) { terminal.setText(terminal.getText() + "\n" + s); }
+        terminal.setText(Text);
         terminal.setBackgroundColor(Bg);
         terminal.setTextColor(Tx);
         terminal.setTextSize(TexSize);
         terminal.setGravity(Gravity.TOP);
 
-        rl = new RelativeLayout.LayoutParams(screenX, screenY);
+        terminalDev.setText(TextDev);
+        terminalDev.setBackgroundColor(Color.DKGRAY);
+        terminalDev.setTextColor(Color.GREEN);
+        terminalDev.setTextSize(TexSize);
+        terminalDev.setGravity(Gravity.TOP);
 
+        rl = new RelativeLayout.LayoutParams(screenX, screenY);
         rl.height = screenY/15;
         rl.width = screenX;
         rl.topMargin = 0;
-        RL.addView(input,rl);
+        MainRL.addView(input,rl);
 
         rl = new RelativeLayout.LayoutParams(screenX, screenY);
         rl.height = screenY;
-        rl.width = screenX;
+        if(Main.Presset.DevMode){rl.width=screenX/2;}else{rl.width = screenX;}
         rl.topMargin = screenY/15;
         RL.addView(terminal,rl);
 
+        if(Main.Presset.DevMode) {
+            rl = new RelativeLayout.LayoutParams(screenX, screenY);
+            rl.height = screenY;
+            rl.width = screenX/2;
+            rl.topMargin = screenY / 15;
+            rl.leftMargin = screenX/2;
+            RL.addView(terminalDev, rl);
+        }
         SV.addView(RL);
-        return SV;
+        MainRL.addView(SV);
+        return MainRL;
     }
 
     public void Update(){
-        terminal.setText("");
-
-        for (String s:Text) { terminal.setText(terminal.getText() + "\n" + s); }
+        Main.DebugAct.Append("[Event] Update Terminal View");
+        TexSize = Main.Presset.TextSize;
+        terminal.setText(Text);
         terminal.setBackgroundColor(Bg);
         terminal.setTextColor(Tx);
         terminal.setTextSize(TexSize);
+
+        if(Main.Presset.DevMode){
+            terminalDev.setText(TextDev);
+            terminalDev.setBackgroundColor(Color.DKGRAY);
+            terminalDev.setTextColor(Color.GREEN);
+            terminalDev.setTextSize(TexSize);
+            terminalDev.setGravity(Gravity.TOP);
+        }
     }
 }

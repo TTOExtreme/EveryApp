@@ -5,11 +5,12 @@ import android.os.Handler;
 import com.ttoextreme.everyapp.Intetpreter.LuaInterpreterJava;
 import com.ttoextreme.everyapp.Intetpreter.References;
 import com.ttoextreme.everyapp.Intetpreter.StorageValues.Functions.Functions;
-import com.ttoextreme.everyapp.Intetpreter.StorageValues.Variables;
-import com.ttoextreme.everyapp.Intetpreter.StorageValues.VariablesStruct;
+import com.ttoextreme.everyapp.Intetpreter.StorageValues.Variables.Variables;
+import com.ttoextreme.everyapp.Intetpreter.StorageValues.Variables.VariablesStruct;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by ttoextreme on 11/8/17.
@@ -26,9 +27,15 @@ public class ForStatement {
     private Variables Vars;
     private WhileStatement WHILE;
 
+    private List<String> _Lines;
+    private int LineAt=0;
+    private String BG ="";
+    private boolean Err=false;
+
     public ForStatement(LuaInterpreterJava luaInterpreterJava) {
 
         Lua = luaInterpreterJava;
+        Lua.DebugAppend("[Init] Initialize For Interpreter Class");
 
         Func = Lua.Func;
         Cond = Lua.Cond;
@@ -38,7 +45,7 @@ public class ForStatement {
         Vars = Lua.Vars;
     }
 
-    public void FOR(List<String> Lines)
+    public void FOR(List<String> Lines,String uuid)
     {
 
         Func = Lua.Func;
@@ -49,127 +56,79 @@ public class ForStatement {
         Vars = Lua.Vars;
 
         while (!(Lines.get(0).indexOf(Refer.For) > -1) && (Lines.get(0).indexOf(Refer.Do) > -1) && Lines.size() > 0) { Lines.remove(0); }
-        String str =Lines.get(0).substring(Lines.get(0).indexOf("(") + 1, Lines.get(0).lastIndexOf(")"));
+        String str ="";
+        if(Lines.get(0).indexOf("(")>-1 && Lines.get(0).indexOf(")")>-1){str=Lines.get(0).substring(Lines.get(0).indexOf("(") + 1, Lines.get(0).lastIndexOf(")"));}
         String[] args = str.split(";");
-        if (args.length != 3) { Lua.DoLine(Refer.Print + "(" + Refer.ErrorHead+Refer.ErrorFor + "" + Refer.Do + ");"); return; }
+        if(str.equals("")){
+            Lua.BGExecution = Lua.BGExecution.replace(uuid, "");
+            return;
+        }
+        if (args.length != 3) {
+            Lua.DoLine(Refer.Print + "(" + Refer.ErrorHead+Refer.ErrorFor + "" + Refer.Do + ");");
+            Lua.BGExecution = Lua.BGExecution.replace(uuid, "");
+            return;
+        }
         //prog.RemoveAt(0);
         if (!Vars.Exists(args[0])){
             Vars.VarAdd(new VariablesStruct(args[0], new VariablesStruct().LOCAL, args[1]));
         } else {
-            Vars.VarSet(args[0], new VariablesStruct().LOCAL, args[1]);
+            //Vars.VarSet(args[0], new VariablesStruct().LOCAL, args[1]);
         }
-
-
-        ForCE(Lines,0);
-
-    }
-
-    private void ForCE(List<String> Lines,int at){//continuos execution
 
         List<String> _prog = new ArrayList<>();
-
         String openclose = "";
-        int count = at;
-        while (!(Lines.get(0).indexOf(Refer.For) > -1) && (Lines.get(0).indexOf(Refer.Do) > -1) && Lines.size() > 0) { Lines.remove(0); }
-        String str =Lines.get(0).substring(Lines.get(0).indexOf("(") + 1, Lines.get(0).lastIndexOf(")"));
-        String[] args = str.split(";");
-        if (args.length != 3) { Lua.DoLine(Refer.Print + "(" + Refer.ErrorHead+Refer.ErrorFor + "" + Refer.Do + ");"); return; }
-        //prog.RemoveAt(0);
-        if (!Vars.Exists(args[0])){ Vars.VarAdd(new VariablesStruct(args[0], new VariablesStruct().LOCAL, args[1])); }
+        int count = 0;
+        if(LineAt>0){count=LineAt;}
         String sig ="";
 
-        if (Integer.parseInt(args[1]) < Integer.parseInt(args[2])) { sig = " < "; } else { if (Integer.parseInt(args[1]) > Integer.parseInt(args[2])) { sig = " < "; } }
-
-
+        if (Integer.parseInt(args[1]) < Integer.parseInt(args[2])) { sig = " <= "; } else { if (Integer.parseInt(args[1]) > Integer.parseInt(args[2])) { sig = " >= "; } }
+        count++;
         for (; Cond.IsTrue("(" + args[0].replace(" ", "") + sig + args[2].replace(" ", "") + ")");)
         {
-            if(count>=Lines.size()){count=0;}
-            if (Lines.get(count).indexOf(Refer.End) > -1) { openclose += "{"; }
+            if(count>Lines.size()-1){count=0;}
+            //verify endless
+            if (Lines.get(count).indexOf(Refer.Do) > -1 || Lines.get(count).indexOf(Refer.Then) > -1) { openclose += "{"; }
+            if (Lines.get(count).indexOf(Refer.End) > -1) { openclose += "}"; }
+            while (openclose.indexOf("{}")>-1){openclose=openclose.replace("{}","");}
 
-            //prog.RemoveAt(0);
-            count++;
-            if(count>=Lines.size()){count=0;}
+            if(count==0 && Lines.size()>1){count = 1;}
+            if(count>Lines.size()-1){count=1;}
             if (Lines.get(count).indexOf(Refer.Do) > -1 && Lines.get(count).indexOf(Refer.Then) > -1) { openclose += "{"; }
-            _prog = new ArrayList<>();
-            for (String s : Lines) { _prog.add(s); }
 
-            int DelayTime = 50;
+            if(count==Lines.size()-1) {
+                if(sig.indexOf("<=")>-1){_prog.add(args[0]+"++;");}else{_prog.add(args[0]+"--;");}
 
-            Lua.DoLine(Lines.get(count));
-
-            if (Integer.parseInt(args[1]) < Integer.parseInt(args[2])) { Lua.DoLine(args[0] + "++;"); } else { if (Integer.parseInt(args[1]) > Integer.parseInt(args[2])) { Lua.DoLine(args[0] + "--;"); } }
-
-            final Handler handler = new Handler();
-            int finalCount = count;
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    ForCE(Lines, finalCount +1);
-                }
-            }, DelayTime);
-            return;
-        }
-        if (_prog.size() > 0) { _prog.remove(0); }
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Vars.VarRem(args[0]);
+                String uuid1 = "{" + UUID.randomUUID().toString()+"}";
+                Lua.BGExecution += uuid1;
+                LineAt = count;
+                PauseContinue(uuid1,uuid,Lines);
+                Lua.DoFile(_prog.toArray(new String[0]),uuid1);
+                _prog = new ArrayList<>();
+                return;
+            }else{
+                _prog.add(Lines.get(count));
             }
-        }, 100);
+            count++;
+        }
+
+        Lua.Vars.VarRem(args[0]);
+        Lua.BGExecution = Lua.BGExecution.replace(uuid, "");
+
         return;
     }
-}
 
-
-/* 2017 12 23 18.31
-
-
-            if (Lines.get(count).indexOf(Refer.End) > -1) { openclose += "{"; }
-
-            //prog.RemoveAt(0);
-            count++;
-            if (Lines.get(count).indexOf(Refer.Do) > -1 && Lines.get(count).indexOf(Refer.Then) > -1) { openclose += "{"; }
-            _prog = new ArrayList<>();
-            for (String s : Lines) { _prog.add(s); }
-
-            int DelayTime = 50;
-
-            List<String> program = new ArrayList<>();
-            while ( openclose != "")
-            {
-                if (_prog.get(count).indexOf(Refer.End) > -1) { _prog.set(count,_prog.get(count).replace(Refer.End, " ")); openclose += "}"; openclose = openclose.replace("{}", ""); if (openclose == "") { break; } }
-                if (_prog.get(count).indexOf(Refer.Then) > -1 || _prog.get(count).indexOf(Refer.Do) > -1) { openclose += "{"; openclose = openclose.replace("{}", ""); if (openclose == "") { break; } }
-                //_prog.set(count,_prog.get(count).replace(Refer.Else, "").replace(Refer.If, "").replace(Refer.For, "").replace(Refer.While, "").replace(Refer.Then, "").replace(Refer.Do, ""));
-
-                if (_prog.get(0).indexOf(Refer.Return) > -1) { return; }
-                program.add(_prog.get(count));
-                if(_prog.get(count).indexOf(Refer.Delay)>-1){DelayTime += Integer.parseInt(Lua.ExtractArgs(_prog.get(0))[0]); }
-                //Lua.DoLine(_prog.get(count));
-                count++;
-                //_prog.RemoveAt(count);
-                if (_prog.size() - count == 1)// 1 for the "end" line
-                {
-                    break;
-                }
-            }
-
-            Lua.DoFile(program.toArray(new String[0]));
-
-            count =0;
-            if (Integer.parseInt(args[1]) < Integer.parseInt(args[2])) { Lua.DoLine(args[0] + "++;"); } else { if (Integer.parseInt(args[1]) > Integer.parseInt(args[2])) { Lua.DoLine(args[0] + "--;"); } }
-
+    private void PauseContinue(String wait,String uuid,List<String> Lines) {
+        if (Lua.BGExecution.indexOf(wait) < 0) {
+            FOR(Lines,uuid);
+        } else {
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    FOR(Lines);
-
+                    PauseContinue(wait,uuid,Lines);
                 }
-            }, DelayTime);
-            return;
+            }, 50);
         }
-        if (_prog.size() > 0) { _prog.remove(0); }
-        Vars.VarRem(args[0]);
-        return;
-* */
+    }
+
+}

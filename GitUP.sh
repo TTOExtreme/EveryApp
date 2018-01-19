@@ -1,11 +1,12 @@
 #!/bin/bash
 clear
 echo "Uploading to Database"
-DATE=Y`date '+%g'`D`date '+%j'`T`date '+%H%M'`
+DATE=Y`date '+%g'`D`date '+%j'`
+DATEComit=Y`date '+%g'`D`date '+%j'`T`date '+%H%M'`
 
 git init
 git add .
-git commit -m ${DATE}
+git commit -m ${DATEComit}
 git checkout -b ${DATE}
 git checkout ${DATE}
 git remote add origin "https://github.com/TTOExtreme/EveryApp.git"

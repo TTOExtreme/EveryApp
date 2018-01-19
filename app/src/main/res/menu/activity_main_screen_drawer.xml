@@ -8,25 +8,25 @@
             android:icon="@drawable/homeicon"
             android:title="Home" />
         <item
-            android:id="@+id/bot_OpenFile"
-            android:icon="@drawable/foldericon"
-            android:title="Open File" />
+            android:id="@+id/bot_Explorer"
+            android:icon="@drawable/sdicon"
+            android:title="Explorer" />
         <item
-            android:id="@+id/bot_NewFile"
+            android:id="@+id/bot_Terminal"
+            android:icon="@drawable/terminalicon"
+            android:title="Terminal" />
+        <item
+            android:id="@+id/bot_App"
             android:icon="@drawable/fileicon"
-            android:title="New File" />
+            android:title="App" />
     </group>
 
     <item android:title="Advanced">
         <menu>
             <item
-                android:id="@+id/bot_Explorer"
-                android:icon="@drawable/sdicon"
-                android:title="Explorer" />
-            <item
-                android:id="@+id/bot_Terminal"
-                android:icon="@drawable/terminalicon"
-                android:title="Terminal" />
+                android:id="@+id/bot_OpenFile"
+                android:icon="@drawable/foldericon"
+                android:title="Open File" />
         </menu>
     </item>
 

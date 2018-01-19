@@ -1,14 +1,13 @@
 package com.ttoextreme.everyapp.Intetpreter.Statements;
 
-import android.os.Handler;
-
 import com.ttoextreme.everyapp.Intetpreter.LuaInterpreterJava;
 import com.ttoextreme.everyapp.Intetpreter.References;
 import com.ttoextreme.everyapp.Intetpreter.StorageValues.Functions.Functions;
-import com.ttoextreme.everyapp.Intetpreter.StorageValues.Variables;
+import com.ttoextreme.everyapp.Intetpreter.StorageValues.Variables.Variables;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by ttoextreme on 11/8/17.
@@ -29,6 +28,7 @@ public class IfStatement {
     public IfStatement(LuaInterpreterJava luaInterpreterJava) {
 
         Lua = luaInterpreterJava;
+        Lua.DebugAppend("[Init] Initialize IF Interpreter Class");
 
         Func = Lua.Func;
         Cond = Lua.Cond;
@@ -79,7 +79,8 @@ public class IfStatement {
                 }
             }
 
-            Lua.DoFile(program.toArray(new String[0]));
+            String uuid1 = "{" + UUID.randomUUID().toString()+"}";
+            Lua.DoFile(program.toArray(new String[0]),uuid1);
 
             return prog;
         }
@@ -113,9 +114,13 @@ public class IfStatement {
                     if (prog.size() == 0) { break; }
                 }
 
-                Lua.DoFile(program.toArray(new String[0]));
+                String uuid1 = "{" + UUID.randomUUID().toString()+"}";
+                Lua.DoFile(program.toArray(new String[0]),uuid1);
+                Vars.BGExecution+="}";
+                return prog;
             }
         }
+        Vars.BGExecution+="}";
         return prog;
     }
 }
