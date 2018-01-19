@@ -56,6 +56,7 @@ public class AR_CameraHolder extends SurfaceView implements SurfaceHolder.Callba
             return;
         }
 
+        // stop preview before making changes
         try {
             mCamera.stopPreview();
         } catch (Exception e){
