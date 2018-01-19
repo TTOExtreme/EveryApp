@@ -1,24 +1,20 @@
 package com.ttoextreme.everyapp.Intetpreter;
 
-import android.app.Activity;
 import android.os.Handler;
 
-import com.ttoextreme.everyapp.Intetpreter.*;
 import com.ttoextreme.everyapp.Intetpreter.Statements.Conditionals;
 import com.ttoextreme.everyapp.Intetpreter.Statements.ForStatement;
 import com.ttoextreme.everyapp.Intetpreter.Statements.IfStatement;
 import com.ttoextreme.everyapp.Intetpreter.Statements.WhileStatement;
 import com.ttoextreme.everyapp.Intetpreter.StorageValues.Functions.Functions;
-import com.ttoextreme.everyapp.Intetpreter.StorageValues.Methods;
-import com.ttoextreme.everyapp.Intetpreter.StorageValues.Variables;
-import com.ttoextreme.everyapp.Intetpreter.StorageValues.VariablesStruct;
+import com.ttoextreme.everyapp.Intetpreter.StorageValues.Methods.Methods;
+import com.ttoextreme.everyapp.Intetpreter.StorageValues.Variables.Variables;
+import com.ttoextreme.everyapp.Intetpreter.StorageValues.Variables.VariablesStruct;
 import com.ttoextreme.everyapp.MainScreen;
 
 import java.lang.*;
-import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.PrimitiveIterator;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
@@ -28,7 +24,7 @@ import java.util.function.BiFunction;
 
 public class LuaInterpreterJava {
 
-    private Activity Main;
+    private MainScreen Main;
     private Methods MethodsClass;
     public References Refer = new References();
     public Compiler Comp;
@@ -44,8 +40,9 @@ public class LuaInterpreterJava {
 
     public String BGExecution = "";
 
-    public LuaInterpreterJava(Activity ms){
+    public LuaInterpreterJava(MainScreen ms){
         Main=ms;
+        DebugAppend("[Init] Initialize Lua Interpreter");
         MethodsClass = new Methods(this);
         Func = new Functions(this);
         Comp = new Compiler(this);
@@ -56,8 +53,14 @@ public class LuaInterpreterJava {
         Cond = new Conditionals(this);
     }
 
+    public void DebugAppend(String s){
+        Main.DebugAct.Append(s);
+    }
+
     public void DoLine(String command){
-        DoFile(new String[]{command},"{884}");
+        String uuid1 = "{" + UUID.randomUUID().toString()+"}";
+        //Main.DebugAct.Append("[Info] Execute Line: {" + command + "} UUID: " + uuid1);
+        DoFile(new String[]{command},uuid1);
     }
 
     public void DoFile(String[] program,String uuid){
@@ -163,6 +166,7 @@ public class LuaInterpreterJava {
         }
         LineAt=0;
         BGExecution=BGExecution.replace(uuid,"");
+        //Main.DebugAct.Append("[Info] Terminates Thread UUID: " + uuid);
         //MethodsClass.Get(Refer.Print).apply(new String[]{Refer.EndProgram},"");
     }
 
@@ -191,6 +195,7 @@ public class LuaInterpreterJava {
 
     public void AddMethod(String name, String caller, BiFunction<String[],String,String> method){
         MethodsClass.AddMethod(name,caller,method);
+        Main.DebugAct.Append("[Addon] Add Method: " + name);
     }
 
 }

@@ -21,6 +21,7 @@ public class Functions {
     public Functions(LuaInterpreterJava lua)
     {
         Lua = lua;
+        Lua.DebugAppend("[Init] Initialize Functions Class");
     }
 
     public List<String> Get(String name)

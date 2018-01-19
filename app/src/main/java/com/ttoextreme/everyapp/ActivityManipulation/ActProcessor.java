@@ -6,7 +6,7 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.ttoextreme.everyapp.Intetpreter.StorageValues.Variables;
+import com.ttoextreme.everyapp.Intetpreter.StorageValues.Variables.Variables;
 import com.ttoextreme.everyapp.MainScreen;
 
 import java.util.ArrayList;
@@ -32,6 +32,7 @@ public class ActProcessor {
 
     public ActProcessor(MainScreen act){
         Main = act;
+        Main.DebugAct.Append("[Init] Initialize Activity Process Class");
         Vars = Main.Lua.Vars;
         Screens = new ArrayList<ScreenRefer>();
         ScreenRefer main = new ScreenRefer();
@@ -62,6 +63,7 @@ public class ActProcessor {
     }
 
     public View getView(){
+        Main.DebugAct.Append("[Event] Creates Activity View");
         RL = new RelativeLayout(Main);
         SV = new ScrollView(Main);
 

@@ -2,7 +2,7 @@ package com.ttoextreme.everyapp.Intetpreter.Statements;
 
 import com.ttoextreme.everyapp.Intetpreter.LuaInterpreterJava;
 import com.ttoextreme.everyapp.Intetpreter.References;
-import com.ttoextreme.everyapp.Intetpreter.StorageValues.Variables;
+import com.ttoextreme.everyapp.Intetpreter.StorageValues.Variables.Variables;
 
 import java.io.File;
 
@@ -17,6 +17,7 @@ public class Conditionals {
     public Conditionals(LuaInterpreterJava lua)
     {
         Lua = lua;
+        Lua.DebugAppend("[Init] Initialize Conditionals Class");
         Vars = Lua.Vars;
     }
 

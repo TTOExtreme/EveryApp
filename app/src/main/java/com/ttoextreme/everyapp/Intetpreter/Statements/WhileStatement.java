@@ -5,7 +5,7 @@ import android.os.Handler;
 import com.ttoextreme.everyapp.Intetpreter.LuaInterpreterJava;
 import com.ttoextreme.everyapp.Intetpreter.References;
 import com.ttoextreme.everyapp.Intetpreter.StorageValues.Functions.Functions;
-import com.ttoextreme.everyapp.Intetpreter.StorageValues.Variables;
+import com.ttoextreme.everyapp.Intetpreter.StorageValues.Variables.Variables;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +27,7 @@ public class WhileStatement {
 
     public WhileStatement(LuaInterpreterJava luaInterpreterJava) {
         Lua = luaInterpreterJava;
+        Lua.DebugAppend("[Init] Initialize While Interpreter Class");
 
         Func = Lua.Func;
         Cond = Lua.Cond;

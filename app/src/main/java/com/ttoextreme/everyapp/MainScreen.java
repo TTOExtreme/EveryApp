@@ -2,30 +2,34 @@ package com.ttoextreme.everyapp;
 
 import android.Manifest;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Process;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.InputType;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Layout;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.ttoextreme.everyapp.ActivityManipulation.ActMethods;
 import com.ttoextreme.everyapp.ActivityManipulation.ActProcessor;
+import com.ttoextreme.everyapp.AugmentedReality.AR_Main;
+import com.ttoextreme.everyapp.AugmentedReality.AR_Methods;
+import com.ttoextreme.everyapp.DebugScreen.Debug_Act;
 import com.ttoextreme.everyapp.Exemples.AppExStruct;
 import com.ttoextreme.everyapp.Exemples.AppsExemple;
 import com.ttoextreme.everyapp.FilesManipulation.Editor;
@@ -44,7 +48,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 public class MainScreen extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -52,6 +55,7 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
     private String MainFolderPath = "/sdcard"+"/EveryApp_Applications/";
     public  String ExplorerPath = MainFolderPath;
     private RelativeLayout MainScreen;
+    private DrawerLayout MainView;
     private ExplorerList Explorer;
 
     public LuaInterpreterJava Lua;
@@ -62,7 +66,10 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
     public ActMethods ActMeth;
     public Pressets Presset;
     private References ReferencesClass = new References();
-    private AppsExemple AppEx = new AppsExemple();
+    private AppsExemple AppEx;
+    public Debug_Act DebugAct;
+    public AR_Main ARMain;
+    public AR_Methods ARMethods;
 
     private String Executing = "";
 
@@ -74,14 +81,43 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main_screen);
-
-        MenuNum = new Menus().MAIN;
-
         MainScreen = findViewById(R.id.Act_MainScreen);
-
-        Setting = new Settings(this);
+        DebugAct = new Debug_Act(this);
         Presset = new Pressets(this);
+        Setting = new Settings(this);
+        Presset.FirstLoad();
+        OpenMain();
+
+        if(Presset.DevMode){
+            StartDebug(new String[0],"");
+        }
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                PostLoad();
+                if(Presset.DevMode){
+                    MainScreen.setBackgroundColor(Color.BLACK);
+                    StartDebug(new String[0],"");
+
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            DebugAct.Append("\n\nPress Back to go to main screen");
+                            MainScreen.setBackgroundColor(Color.WHITE);
+                        };
+                    }, 3000);
+                }
+            }
+        }, 100);
+
+    }
+    private void PostLoad(){
+        AppEx = new AppsExemple(this);
+        MenuNum = new Menus().MAIN;
 
         Lua = new LuaInterpreterJava(this);
         Term = new Terminal(this);
@@ -91,18 +127,21 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
         Explorer = new ExplorerList();
         Explorer.init(this);
         EditScreen = new Editor(this);
+        ARMethods = new AR_Methods(this);
+        ARMain = new AR_Main(this);
 
 
-        Presset.Load();
         CreateMethods();
 
         //ask permition
 
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
-
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.CAMERA},1);
 
         //Creates the Example files
         if(Presset.Reset) {
+            File p = new File(ExplorerPath);
+            p.delete();
+            p.mkdir();
             for (AppExStruct s : AppEx.Exemples) {
                 File Exp = new File(ExplorerPath + "/Exemples/");
                 if (!Exp.exists()) {
@@ -113,32 +152,28 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
                     Exp.delete();
                 }
                 if (!Exp.exists()) {
+                    DebugAct.Append("[Info] Creating Exemple: " + Exp.getName());
                     SaveFile(Exp.getPath(), s.Code);
                 }
             }
         }
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        if(Presset.DevMode){
+            StartDebug(new String[0],"");
+        }
+    }
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-            }
-        });
+    public void Exit(){
+        try {
+            Thread.sleep(3000);
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
 
-        //navigation Drawer
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-        navigationView.setItemIconTintList(null);//deletes the solid color sobreposition on icons
-
-
+        } catch (InterruptedException e1) {
+            e1.printStackTrace();
+        }
     }
 
     @Override
@@ -148,7 +183,7 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //UpdateExplorer(MainFolderPath);
                 } else {
-                    Toast.makeText(this, "Permission denied to read your External storage", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
                 }
                 return;
             }
@@ -165,14 +200,21 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
 
     }
 
-    public String StartTerminal(String[] s1,String s2){ MainScreen.removeAllViews(); MainScreen.addView(Term.getView(),0);  return "";}
-    public String StartSettings(String[] s1,String s2){ MainScreen.removeAllViews(); MainScreen.addView(Setting.getView(),0);  return "";}
-    public String StartAct(String[] s1,String s2){ MainScreen.removeAllViews(); MainScreen.addView(ActP.getView(),0);  return "";}
+    public String StartTerminal(String[] s1,String s2){ MainScreen = findViewById(R.id.Act_MainScreen); MainScreen.removeAllViews(); MainScreen.addView(Term.getView(),0);  return "";}
+    public String StartSettings(String[] s1,String s2){ MainScreen = findViewById(R.id.Act_MainScreen); MainScreen.removeAllViews(); MainScreen.addView(Setting.getView(),0);  return "";}
+    public String StartAct(String[] s1,String s2){ MainScreen = findViewById(R.id.Act_MainScreen); MainScreen.removeAllViews(); MainScreen.addView(ActP.getView(),0);  return "";}
+    public String StartDebug(String[] s1,String s2){ MainScreen = findViewById(R.id.Act_MainScreen); MainScreen.removeAllViews(); MainScreen.addView(DebugAct.GetView(),0);  return "";}
+    public String StartAR(String[] s1,String s2){ MainScreen = findViewById(R.id.Act_MainScreen); MainScreen.removeAllViews(); MainScreen.addView(ARMain.GetView(),0);  return "";}
 
     public String Print(String[] s1,String s2){String str = s1[0].replace("\"","");Term.Text+="\n"+str;Term.Update();return "";}
     public String PrintDev(String[] s1,String s2){String str = s1[0].replace("\"","");Term.TextDev+="\n"+str;Term.Update();return "";}
     public String Write(String[] s1,String s2){String str = s1[0].replace("\"",""); Term.Text+=str; return "";}
     public String Clear(String[] s1,String s2){ Term.Text = ""; return "";}
+
+    public void StartMain(){
+        MainScreen = findViewById(R.id.Act_MainScreen);
+        MainScreen.removeAllViews();
+    }
 
     public void UpdateExplorer(String path){
         ExplorerPath = path;
@@ -246,6 +288,7 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
 
     @Override
     public void onBackPressed() {
+        StartMain();
         return;
         /*
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -367,6 +410,24 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void OpenMain(){
+        StartMain();
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+
+        //navigation Drawer
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setItemIconTintList(null);//deletes the solid color sobreposition on icons
+
     }
 
 }

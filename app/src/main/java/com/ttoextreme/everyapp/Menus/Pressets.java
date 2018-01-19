@@ -1,6 +1,8 @@
 package com.ttoextreme.everyapp.Menus;
 
+import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Environment;
 import android.provider.ContactsContract;
@@ -40,42 +42,52 @@ public class Pressets {
 
     public Pressets(MainScreen act){
         Main=act;
+        Main.DebugAct.Append("[Init] Initialize Settings Database");
         path= act.getFilesDir().getAbsolutePath()+"/prefs";
         File f = new File(path);
         if(!f.exists()){ Write();}
     }
 
     private void Write(){
-
+        Main.DebugAct.Append("[Event] Writing to Settings Database");
         String s = "";
         File f = new File(path);
         if(DarkTheme){s+="1"+"\n";}else{s+="0"+"\n";}
         if(DevMode){s+="1"+"\n";}else{s+="0"+"\n";}
+        if(Reset){s+="1"+"\n";}else{s+="0"+"\n";}
 
         try {
             FileWriter writer = new FileWriter(f);
             writer.append(s);
             writer.flush();
             writer.close();
-            Main.Lua.DoLine(Main.Lua.Refer.PrintDev+"(Saving Settings)");
+            Main.DebugAct.Append("[Info] Saving Settings");
         } catch (Exception e) {
-            Main.Lua.DoLine(Main.Lua.Refer.PrintDev+"(Error Saving Settings: \n"+ e.getMessage() +")");
+            Main.DebugAct.Append("[Error] Saving Settings: \n"+ e.getMessage());
+            Main.Exit();
         }
     }
 
-    public void Load(){
+    public void FirstLoad(){
+        Main.DebugAct.Append("[Event] Loading From Settings Database");
         try {
+            Main.DebugAct.Append("[Info] Loading Settings");
             BufferedReader in = new BufferedReader(new FileReader(path));
             List<String> list = new ArrayList<String>();
             String str;
             while ((str = in.readLine()) != null) {
                 list.add(str);
             }
-            if(list.get(0).equals("1")){DarkTheme=true;}else{DarkTheme = false;}
-            if(list.get(1).equals("1")){DevMode=true;}else{DevMode=false;}
-            Main.Lua.DoLine(Main.Lua.Refer.PrintDev+"(Loading Settings)");
+            Main.DebugAct.Append("[Info] Loading DarkTheme Setting");
+            if(list.get(0).equals("1")){DarkTheme=true; Main.DebugAct.Append("[Info] DarkTheme: True;");}else{DarkTheme = false; Main.DebugAct.Append("[Info] DarkTheme: False;");}
+            Main.DebugAct.Append("[Info] Loading DevMode Setting");
+            if(list.get(1).equals("1")){DevMode=true; Main.DebugAct.Append("[Info] DevMode: True;");}else{DevMode=false; Main.DebugAct.Append("[Info] DevMode: False;");}
+            Main.DebugAct.Append("[Info] Loading Reset Setting");
+            if(list.get(2).equals("1")){Reset=true; Main.DebugAct.Append("[Info] Reset: True;");}else{Reset=false; Main.DebugAct.Append("[Info] Reset: False;");}
+            Main.DebugAct.Append("[Info] Loaded Settings");
         } catch (Exception e) {
-            Main.Lua.DoLine(Main.Lua.Refer.PrintDev+"(Error Loading Settings: \n"+ e.getMessage() +")");
+            Main.DebugAct.Append("[Error] Failed to Load Settings Aborting \n" + e.toString());
+            Main.Exit();
         }
     }
 

@@ -42,6 +42,7 @@ public class Editor {
 
     public Editor(MainScreen act){
         Main=act;
+        Main.DebugAct.Append("[Init] Initialize Editor View Class");
         terminal = new EditText(Main);
         RL = new RelativeLayout(Main);
         SV = new ScrollView(Main);
@@ -70,6 +71,7 @@ public class Editor {
     }
 
     public View getView(){
+        Main.DebugAct.Append("[Event] Creates Editor View");
 
         RL.removeAllViews();
         SV.removeAllViews();

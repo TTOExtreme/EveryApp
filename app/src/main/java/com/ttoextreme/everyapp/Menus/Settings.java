@@ -4,8 +4,11 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -39,6 +42,7 @@ public class Settings {
 
     public Settings(MainScreen act){
         Main=act;
+        Main.DebugAct.Append("[Init] Initialize Settings View");
         RL = new RelativeLayout(Main);
         SV = new ScrollView(Main);
     }
@@ -46,7 +50,7 @@ public class Settings {
 
 
     public View getView(){
-
+        Main.DebugAct.Append("[Event] Create Settings View");
         int count=0;
         RL.removeAllViews();
         SV.removeAllViews();
@@ -76,6 +80,12 @@ public class Settings {
         Lab.setText("Dark Theme");
         RL.addView(Lab,rl);
         swt1.setChecked(Main.Presset.DarkTheme);
+        swt1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Update();
+            }
+        });
         rl = new RelativeLayout.LayoutParams(screenY/15, screenY/15);
         rl.height = screenY/15;
         rl.width = screenX/2;
@@ -97,6 +107,22 @@ public class Settings {
         RL.addView(Lab,rl);
         int val=Main.Presset.TextSize;
         txs.setText(String.valueOf(val));
+        txs.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Update();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
         rl = new RelativeLayout.LayoutParams(screenY/15, screenY/15);
         rl.height = screenY/15;
         rl.width = screenX/2;
@@ -117,6 +143,12 @@ public class Settings {
         Lab.setText("Dev Mode");
         RL.addView(Lab,rl);
         swt2.setChecked(Main.Presset.DevMode);
+        swt2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Update();
+            }
+        });
         rl = new RelativeLayout.LayoutParams(screenY/15, screenY/15);
         rl.height = screenY/15;
         rl.width = screenX/2;
@@ -136,6 +168,12 @@ public class Settings {
         Lab.setText("Reset on Start");
         RL.addView(Lab,rl);
         swt3.setChecked(Main.Presset.Reset);
+        swt3.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Update();
+            }
+        });
         rl = new RelativeLayout.LayoutParams(screenY/15, screenY/15);
         rl.height = screenY/15;
         rl.width = screenX/2;
@@ -152,11 +190,12 @@ public class Settings {
 
 
     private void Update() {
+        Main.DebugAct.Append("[Event] Update Settings View");
         Main.Presset.setDarkTheme(swt1.isChecked());
         Main.Presset.setDevMode(swt2.isChecked());
         Main.Presset.setReset(swt3.isChecked());
         Main.Presset.setTextSize(Integer.parseInt(txs.getText().toString()));
-
+/*
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
@@ -167,7 +206,7 @@ public class Settings {
                 }
                 Update();
             }
-        }, 500);
+        }, 500);//*/
 
     }
 }

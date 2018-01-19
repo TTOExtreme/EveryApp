@@ -21,6 +21,7 @@ public class Compiler {
 
     public Compiler(LuaInterpreterJava lua){
         Lua=lua;
+        Lua.DebugAppend("[Init] Initialize Compiler");
         Func = Lua.Func;
     }
 

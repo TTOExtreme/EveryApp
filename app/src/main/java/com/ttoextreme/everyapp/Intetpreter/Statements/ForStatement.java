@@ -5,8 +5,8 @@ import android.os.Handler;
 import com.ttoextreme.everyapp.Intetpreter.LuaInterpreterJava;
 import com.ttoextreme.everyapp.Intetpreter.References;
 import com.ttoextreme.everyapp.Intetpreter.StorageValues.Functions.Functions;
-import com.ttoextreme.everyapp.Intetpreter.StorageValues.Variables;
-import com.ttoextreme.everyapp.Intetpreter.StorageValues.VariablesStruct;
+import com.ttoextreme.everyapp.Intetpreter.StorageValues.Variables.Variables;
+import com.ttoextreme.everyapp.Intetpreter.StorageValues.Variables.VariablesStruct;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +35,7 @@ public class ForStatement {
     public ForStatement(LuaInterpreterJava luaInterpreterJava) {
 
         Lua = luaInterpreterJava;
+        Lua.DebugAppend("[Init] Initialize For Interpreter Class");
 
         Func = Lua.Func;
         Cond = Lua.Cond;

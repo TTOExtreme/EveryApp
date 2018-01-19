@@ -19,6 +19,7 @@ public class ActMethods {
 
     public ActMethods(MainScreen act){
         Main = act;
+        Main.DebugAct.Append("[Init] Initialize Activity Methods Class");
         Main.Lua.AddMethod(ref.Init,ref.Init,this::Init);
         Main.Lua.AddMethod(ref.Add,ref.Add,this::AddView);
         Main.Lua.AddMethod(ref.StartAct,ref.StartAct,this::Start);

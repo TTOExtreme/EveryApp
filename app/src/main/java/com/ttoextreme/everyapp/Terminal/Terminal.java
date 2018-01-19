@@ -47,13 +47,19 @@ public class Terminal {
 
     public Terminal(MainScreen act){
         Main=act;
+        Main.DebugAct.Append("[Init] Initializing Terminal Segment");
         terminal = new EditText(Main);
+        Main.DebugAct.Append("[Init] - Create Terminal View");
         terminalDev = new EditText(Main);
+        Main.DebugAct.Append("[Init] - Create Developer Terminal View");
         input = new EditText(Main);
+        Main.DebugAct.Append("[Init] - Create User Input");
         MainRL = new RelativeLayout(Main);
+        Main.DebugAct.Append("[Init] - Create View Group");
         RL = new RelativeLayout(Main);
         SV = new ScrollView(Main);
         TexSize = Main.Presset.TextSize;
+        Main.DebugAct.Append("[Init] Finished Terminal Load");
     }
 
     public void SetOnkeyListerner(BiFunction<String[],String,String> keylistener){
@@ -70,6 +76,7 @@ public class Terminal {
 
 
     public View getView(){
+        Main.DebugAct.Append("[Event] Open Terminal View");
 
         MainRL.removeAllViews();
         RL.removeAllViews();
@@ -126,6 +133,7 @@ public class Terminal {
     }
 
     public void Update(){
+        Main.DebugAct.Append("[Event] Update Terminal View");
         TexSize = Main.Presset.TextSize;
         terminal.setText(Text);
         terminal.setBackgroundColor(Bg);
