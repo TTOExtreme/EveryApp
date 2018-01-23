@@ -6,6 +6,7 @@ import com.ttoextreme.everyapp.Intetpreter.Statements.Conditionals;
 import com.ttoextreme.everyapp.Intetpreter.Statements.ForStatement;
 import com.ttoextreme.everyapp.Intetpreter.Statements.IfStatement;
 import com.ttoextreme.everyapp.Intetpreter.Statements.WhileStatement;
+import com.ttoextreme.everyapp.Intetpreter.StorageValues.Components.Components;
 import com.ttoextreme.everyapp.Intetpreter.StorageValues.Functions.Functions;
 import com.ttoextreme.everyapp.Intetpreter.StorageValues.Methods.Methods;
 import com.ttoextreme.everyapp.Intetpreter.StorageValues.Variables.Variables;
@@ -34,6 +35,7 @@ public class LuaInterpreterJava {
     public ForStatement FOR;
     public WhileStatement WHILE;
     public Variables Vars;
+    public Components Compo;
 
     private int LineAt =0;//pos program
     private String[] Program;
@@ -49,6 +51,7 @@ public class LuaInterpreterJava {
         IF = new IfStatement(this);
         FOR = new ForStatement(this);
         WHILE = new WhileStatement(this);
+        Compo = new Components(this);
         Vars = new Variables(this);
         Cond = new Conditionals(this);
     }

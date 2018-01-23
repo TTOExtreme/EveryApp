@@ -58,7 +58,7 @@ public class ActMethods {
         return "";
     }
     public String AddView(String[] s1,String s2){
-        String scr = s2.substring(0,s2.indexOf(ref.Add)).replace(" ","").replace(".","");
+        String scr = s2.substring(0,s2.indexOf(ref.Add)).replace(" ","").replace(".","").replace("\"","");
         for(int i=0;i<Views.size();i++){
             if(Views.get(i).Name.equals(s1[0])){
                 Main.ActP.AddToScreen(Views.get(i),scr);
@@ -67,84 +67,95 @@ public class ActMethods {
         return "";
     }
     public String ViewSetText(String[] s1,String s2){
-        String View = s2.substring(0,s2.indexOf(ref.SetText)).replace(" ","").replace(".","");
+        String View = s2.substring(0,s2.indexOf(ref.SetText)).replace(" ","").replace(".","").replace("\"","");
         for(int i=0;i<Views.size();i++){
             if(Views.get(i).Name.equals(View)){
                 ViewStruct vs = Views.get(i);
                 vs.Text=s1[0];
                 Views.set(i,vs);
+                Main.Lua.Compo.VarSet(Views.get(i).Name+".text",s1[0]);
             }
         }
         return "";
     }
     public String ViewSetBgColor(String[] s1,String s2){
-        String View = s2.substring(0,s2.indexOf(ref.SetBgColor)).replace(" ","").replace(".","");
+        String View = s2.substring(0,s2.indexOf(ref.SetBgColor)).replace(" ","").replace(".","").replace("\"","");
         for(int i=0;i<Views.size();i++){
             if(Views.get(i).Name.equals(View)){
                 ViewStruct vs = Views.get(i);
                 vs.Background = Color.rgb(Integer.parseInt(s1[0]),Integer.parseInt(s1[1]),Integer.parseInt(s1[2]));
                 Views.set(i,vs);
+                Main.Lua.Compo.VarSet(Views.get(i).Name+".bg.r",s1[0]);
+                Main.Lua.Compo.VarSet(Views.get(i).Name+".bg.g",s1[1]);
+                Main.Lua.Compo.VarSet(Views.get(i).Name+".bg.b",s1[2]);
             }
         }
         return "";
     }
     public String ViewSetTextColor(String[] s1,String s2){
-        String View = s2.substring(0,s2.indexOf(ref.SetTextColor)).replace(" ","").replace(".","");
+        String View = s2.substring(0,s2.indexOf(ref.SetTextColor)).replace(" ","").replace(".","").replace("\"","");
         for(int i=0;i<Views.size();i++){
             if(Views.get(i).Name.equals(View)){
                 ViewStruct vs = Views.get(i);
                 vs.TextColor=Color.rgb(Integer.parseInt(s1[0]),Integer.parseInt(s1[1]),Integer.parseInt(s1[2]));
                 Views.set(i,vs);
+                Main.Lua.Compo.VarSet(Views.get(i).Name+".txtcolor.r",s1[0]);
+                Main.Lua.Compo.VarSet(Views.get(i).Name+".txtcolor.g",s1[1]);
+                Main.Lua.Compo.VarSet(Views.get(i).Name+".txtcolor.b",s1[2]);
             }
         }
         return "";
     }
     public String ViewSetMarginTop(String[] s1,String s2){
-        String View = s2.substring(0,s2.indexOf(ref.SetMarginTop)).replace(" ","").replace(".","");
+        String View = s2.substring(0,s2.indexOf(ref.SetMarginTop)).replace(" ","").replace(".","").replace("\"","");
         for(int i=0;i<Views.size();i++){
             if(Views.get(i).Name.equals(View)){
                 ViewStruct vs = Views.get(i);
                 vs.margintop=Integer.parseInt(s1[0]);
                 Views.set(i,vs);
+                Main.Lua.Compo.VarSet(Views.get(i).Name+".margin.top",s1[0]);
             }
         }
         return "";
     }
     public String ViewSetMarginBottom(String[] s1,String s2){
-        String View = s2.substring(0,s2.indexOf(ref.SetMarginBottom)).replace(" ","").replace(".","");
+        String View = s2.substring(0,s2.indexOf(ref.SetMarginBottom)).replace(" ","").replace(".","").replace("\"","");
         for(int i=0;i<Views.size();i++){
             if(Views.get(i).Name.equals(View)){
                 ViewStruct vs = Views.get(i);
                 vs.marginbottom=Integer.parseInt(s1[0]);
                 Views.set(i,vs);
+                Main.Lua.Compo.VarSet(Views.get(i).Name+".margin.bottom",s1[0]);
             }
         }
         return "";
     }
     public String ViewSetMarginLeft(String[] s1,String s2){
-        String View = s2.substring(0,s2.indexOf(ref.SetMarginLeft)).replace(" ","").replace(".","");
+        String View = s2.substring(0,s2.indexOf(ref.SetMarginLeft)).replace(" ","").replace(".","").replace("\"","");
         for(int i=0;i<Views.size();i++){
             if(Views.get(i).Name.equals(View)){
                 ViewStruct vs = Views.get(i);
                 vs.marginleft=Integer.parseInt(s1[0]);
                 Views.set(i,vs);
+                Main.Lua.Compo.VarSet(Views.get(i).Name+".margin.left",s1[0]);
             }
         }
         return "";
     }
     public String ViewSetMarginRight(String[] s1,String s2){
-        String View = s2.substring(0,s2.indexOf(ref.SetMarginRight)).replace(" ","").replace(".","");
+        String View = s2.substring(0,s2.indexOf(ref.SetMarginRight)).replace(" ","").replace(".","").replace("\"","");
         for(int i=0;i<Views.size();i++){
             if(Views.get(i).Name.equals(View)){
                 ViewStruct vs = Views.get(i);
                 vs.marginright=Integer.parseInt(s1[0]);
                 Views.set(i,vs);
+                Main.Lua.Compo.VarSet(Views.get(i).Name+".margin.right",s1[0]);
             }
         }
         return "";
     }
     public String ViewSetClick(String[] s1,String s2){
-        String View = s2.substring(0,s2.indexOf(ref.SetClick)).replace(" ","").replace(".","");
+        String View = s2.substring(0,s2.indexOf(ref.SetClick)).replace(" ","").replace(".","").replace("\"","");
         for(int i=0;i<Views.size();i++){
             if(Views.get(i).Name.equals(View)){
                 ViewStruct vs = Views.get(i);
@@ -155,23 +166,25 @@ public class ActMethods {
         return "";
     }
     public String ViewSetWidth(String[] s1,String s2){
-        String View = s2.substring(0,s2.indexOf(ref.SetWidth)).replace(" ","").replace(".","");
+        String View = s2.substring(0,s2.indexOf(ref.SetWidth)).replace(" ","").replace(".","").replace("\"","");
         for(int i=0;i<Views.size();i++){
             if(Views.get(i).Name.equals(View)){
                 ViewStruct vs = Views.get(i);
                 vs.Width = Integer.parseInt(s1[0]);
                 Views.set(i,vs);
+                Main.Lua.Compo.VarSet(Views.get(i).Name+".width",s1[0]);
             }
         }
         return "";
     }
     public String ViewSetHeight(String[] s1,String s2){
-        String View = s2.substring(0,s2.indexOf(ref.SetHeight)).replace(" ","").replace(".","");
+        String View = s2.substring(0,s2.indexOf(ref.SetHeight)).replace(" ","").replace(".","").replace("\"","");
         for(int i=0;i<Views.size();i++){
             if(Views.get(i).Name.equals(View)){
                 ViewStruct vs = Views.get(i);
                 vs.Height = Integer.parseInt(s1[0]);
                 Views.set(i,vs);
+                Main.Lua.Compo.VarSet(Views.get(i).Name+".height",s1[0]);
             }
         }
         return "";

@@ -2,6 +2,7 @@ package com.ttoextreme.everyapp.Intetpreter.StorageValues.Variables;
 
 import com.ttoextreme.everyapp.Intetpreter.LuaInterpreterJava;
 import com.ttoextreme.everyapp.Intetpreter.References;
+import com.ttoextreme.everyapp.Intetpreter.StorageValues.Components.ComponentsStruct;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +52,26 @@ public class Variables {
         }
 
         for (VariablesStruct v : GV)
+        {
+            if (command.indexOf(v.Name) > -1)
+            {
+                String[] st = new References().Replaceble;
+
+                for (String s1 : st)
+                {
+                    for (String s2 : st)
+                    {
+                        if (command.indexOf(s2 + v.Name + s1) > -1) { command = command.replace(s2 + v.Name + s1, s2 + v.Value.toString() + s1); }
+                        if (command.indexOf(s1 + v.Name + s2) > -1) { command = command.replace(s1 + v.Name + s2, s1 + v.Value.toString() + s2); }
+                        if (command.indexOf(v.Name + s1) == 0) { command = command.replace(v.Name + s1, v.Value.toString() + s1); }
+                        if (command.indexOf(s1 + v.Name) == 0) { command = command.replace(s1 + v.Name, s1 + v.Value.toString()); }
+                        if (command == v.Name) { command = command.replace(v.Name, v.Value.toString()); }
+                    }
+                }
+            }
+        }
+
+        for (ComponentsStruct v : Lua.Compo.GetAll())
         {
             if (command.indexOf(v.Name) > -1)
             {

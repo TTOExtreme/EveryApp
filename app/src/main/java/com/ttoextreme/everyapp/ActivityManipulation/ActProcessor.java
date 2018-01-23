@@ -1,11 +1,16 @@
 package com.ttoextreme.everyapp.ActivityManipulation;
 
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.ttoextreme.everyapp.Intetpreter.References;
 import com.ttoextreme.everyapp.Intetpreter.StorageValues.Variables.Variables;
 import com.ttoextreme.everyapp.MainScreen;
 
@@ -82,6 +87,7 @@ public class ActProcessor {
                         @Override
                         public void onClick(View v) {
                             Main.Lua.DoLine(v.getTransitionName());
+                            Update();
                         }
                     });
                     rl.leftMargin = View.marginleft;
@@ -95,6 +101,40 @@ public class ActProcessor {
                     bot.setText(View.Text);
                     bot.setBackgroundColor(View.Background);
                     bot.setTextColor(View.TextColor);
+                    bot.setTransitionName(View.OnClick);
+                    bot.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Main.Lua.DoLine(v.getTransitionName());
+                            Update();
+                        }
+                    });
+                    rl.leftMargin = View.marginleft;
+                    rl.rightMargin = View.marginright;
+                    rl.topMargin = View.margintop;
+                    rl.bottomMargin = View.marginbottom;
+                    RL.addView(bot, rl);
+                }
+                if (View.Type == EDITTEXT) {
+                    EditText bot = new EditText(Main);
+                    bot.setText(View.Text);
+                    bot.setBackgroundColor(View.Background);
+                    bot.setTextColor(View.TextColor);
+                    bot.setTransitionName(View.Name);
+                    bot.addTextChangedListener(new TextWatcher() {
+                        public void afterTextChanged(Editable s) {
+                            Main.ActMeth.ViewSetText(new String[]{s.toString()},View.Name+ ".setText("+s.toString()+");");
+                            Main.Lua.Compo.VarSet(View.Name+".text",s.toString());
+                        }
+
+                        @Override
+                        public void beforeTextChanged(CharSequence s, int start,int count, int after) {
+                        }
+
+                        @Override
+                        public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        }
+                    });
                     rl.leftMargin = View.marginleft;
                     rl.rightMargin = View.marginright;
                     rl.topMargin = View.margintop;

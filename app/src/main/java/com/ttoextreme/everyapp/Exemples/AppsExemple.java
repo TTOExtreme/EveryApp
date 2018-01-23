@@ -18,9 +18,63 @@ public class AppsExemple {
     public static String WhileCondition = "print(\"While Test\"); \ni = 0; \nwhile(i < 10)do\nprint(\"Num\" i);\n delay(500);\ni++;\nend";
     public static String Function = "print(\"Functions\");\n\nfunction func1()\nprint(\"this is in func1\");\nend\n\nfunction func2()\nprint(\"this is in func2\");\nend\n\nfunction func3()\nprint(\"this is in func3\");\nend\n\nfunc2();\nfunc3();\nfunc1();";
     public static String Button = "act.init;\ncreateAct(scr1);\ncreateView(button,bot1);\nbot1.setText(\"button\");\nbot1.setBgColor(0,0,255);\nbot1.setTextColor(50,255,50);\nbot1.setWidth(300);\nbot1.setHeight(300);\nbot1.setMarginTop(60);\nbot1.setMarginBottom(60);\nbot1.setMarginLeft(60);\nbot1.setMarginRight(60);\nscr1.addView(bot1);\nact.start(scr1);";
-    public static String OpenAct = "act.init;\ncreateAct(scr1);\ncreateView(button,bot1);\nbot1.setText(\"Open Other Activity\");\nbot1.setBgColor(0,0,255);\nbot1.setTextColor(50,255,50);\nbot1.setWidth(300);\nbot1.setHeight(300);\nbot1.setMarginTop(60);\nbot1.setMarginBottom(60);\nbot1.setMarginLeft(60);\nbot1.setMarginRight(60);\nbot1.setClick(\"act.start(scr1);\");\nMain.addView(bot1);\n\n"+
-                                    "\ncreateView(button,bot2);\nbot2.setText(\"OpenMain\");\nbot2.setBgColor(0,0,255);\nbot2.setTextColor(50,255,50);\nbot2.setWidth(300);\nbot2.setHeight(300);\nbot2.setMarginTop(60);\nbot2.setMarginBottom(60);\nbot2.setMarginLeft(60);\nbot2.setMarginRight(60);\nbot2.setClick(\"act.start(Main);\");\nscr1.addView(bot2);\nact.start(Main);";
+    public static String OpenAct = "act.init;" +
+            "\ncreateAct(scr1);" +
+            "\ncreateView(button,bot1);" +
+            "\nbot1.setText(\"Open Other Activity\");" +
+            "\nbot1.setBgColor(0,0,255);" +
+            "\nbot1.setTextColor(50,255,50);" +
+            "\nbot1.setWidth(300);" +
+            "\nbot1.setHeight(300);" +
+            "\nbot1.setMarginTop(60);" +
+            "\nbot1.setMarginBottom(60);" +
+            "\nbot1.setMarginLeft(60);" +
+            "\nbot1.setMarginRight(60);" +
+            "\nbot1.setClick(\"act.start(scr1);\");" +
+            "\nMain.addView(bot1);" +
+
+            "\ncreateView(button,bot2);" +
+            "\nbot1.setWidth(300);" +
+            "\nbot1.setHeight(300);" +
+            "\nbot2.setText(\"OpenMain\");" +
+            "\nbot2.setClick(\"act.start(Main);\");" +
+            "\nscr1.addView(bot2);" +
+            "\nact.start(Main);";
+
+    public static String EditText =
+            "act.init;" +
+            "\ncreateAct(scr1);" +
+            "\ncreateView(button,bot1);" +
+            "\nbot1.setWidth(700);" +
+            "\nbot1.setHeight(300);" +
+            "\nbot1.setText(\"button\");" +
+            "\nbot1.setClick(\"bot1.setText(\"you write: \" edt1.text);\");" +
+            "\nscr1.addView(bot1);" +
+
+            "\ncreateView(edittext,edt1);" +
+            "\nedt1.setText(\"button\");" +
+            "\nedt1.setWidth(700);" +
+            "\nedt1.setHeight(500);" +
+            "\nbot1.setMarginTop(300);" +
+            "\nscr1.addView(edt1);" +
+            "\nact.start(scr1);";
+
     public static String AugReality = "AR.init();";
+    public static String Engine3D = "GL.init();" +
+            "\nGL.addCube(\"cb1\")" +
+            "\ncb1.GLsetAlpha(0.1f);" +
+            "\ncb1.GLsetPos(1.0f,0.0f,-30.0f);" +
+            "\nGL.addCube(\"cb2\")" +
+            "\ncb2.GLsetAlpha(0.1f);" +
+            "\ncb2.GLsetRotSpeed(0.5f);" +
+            "\ncb2.GLsetPos(1.0f,1.0f,-30.0f);";
+    public static String Engine3DFor = "GL.init();" +
+            "\nfor(i;0;10)do" +
+            "\nGL.addCube(\"cb1[i]\")" +
+            "\ncb1[i].GLsetAlpha(0.1f);" +
+            "\ncb1[i].GLsetRotSpeed(0.5f);" +
+            "\ncb1[i].GLsetPos(i,2.0f,-30.0f);" +
+            "\nend";
 
     public List<AppExStruct> Exemples = new ArrayList<>();
 
@@ -33,7 +87,11 @@ public class AppsExemple {
         Exemples.add(new AppExStruct("05-Function", Function));
         Exemples.add(new AppExStruct("06-Button", Button));
         Exemples.add(new AppExStruct("07-Open_Another_Activity", OpenAct));
-        Exemples.add(new AppExStruct("08-Augmented_Reality", AugReality));
+        Exemples.add(new AppExStruct("08-Use_EditText", EditText));
+
+        Exemples.add(new AppExStruct("14-3D_Engine", Engine3D));
+        Exemples.add(new AppExStruct("15-3D_Engine_For", Engine3DFor));
+        Exemples.add(new AppExStruct("16-Augmented_Reality", AugReality));
     }
 }
 

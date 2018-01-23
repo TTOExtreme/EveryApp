@@ -39,6 +39,8 @@ import com.ttoextreme.everyapp.Intetpreter.References;
 import com.ttoextreme.everyapp.Menus.Menus;
 import com.ttoextreme.everyapp.Menus.Pressets;
 import com.ttoextreme.everyapp.Menus.Settings;
+import com.ttoextreme.everyapp.RenderEngine.Render;
+import com.ttoextreme.everyapp.RenderEngine.RenderMethods;
 import com.ttoextreme.everyapp.Terminal.Terminal;
 
 import java.io.BufferedReader;
@@ -70,6 +72,8 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
     public Debug_Act DebugAct;
     public AR_Main ARMain;
     public AR_Methods ARMethods;
+    public Render GLRender;
+    public RenderMethods GLRenderMethods;
 
     private String Executing = "";
 
@@ -129,6 +133,8 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
         EditScreen = new Editor(this);
         ARMethods = new AR_Methods(this);
         ARMain = new AR_Main(this);
+        GLRender = new Render(this);
+        GLRenderMethods = new RenderMethods(this);
 
 
         CreateMethods();
@@ -198,6 +204,7 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
         Lua.AddMethod(ReferencesClass.Write, ReferencesClass.Write, this::Write);
         Lua.AddMethod(ReferencesClass.Clear, ReferencesClass.Clear, this::Clear);
 
+        GLRenderMethods.CreateMethods();
     }
 
     public String StartTerminal(String[] s1,String s2){ MainScreen = findViewById(R.id.Act_MainScreen); MainScreen.removeAllViews(); MainScreen.addView(Term.getView(),0);  return "";}
@@ -205,6 +212,7 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
     public String StartAct(String[] s1,String s2){ MainScreen = findViewById(R.id.Act_MainScreen); MainScreen.removeAllViews(); MainScreen.addView(ActP.getView(),0);  return "";}
     public String StartDebug(String[] s1,String s2){ MainScreen = findViewById(R.id.Act_MainScreen); MainScreen.removeAllViews(); MainScreen.addView(DebugAct.GetView(),0);  return "";}
     public String StartAR(String[] s1,String s2){ MainScreen = findViewById(R.id.Act_MainScreen); MainScreen.removeAllViews(); MainScreen.addView(ARMain.GetView(),0);  return "";}
+    public String StartEngine(String[] s1,String s2){ MainScreen = findViewById(R.id.Act_MainScreen); MainScreen.removeAllViews(); MainScreen.addView(GLRender.GetView(),0);  return "";}
 
     public String Print(String[] s1,String s2){String str = s1[0].replace("\"","");Term.Text+="\n"+str;Term.Update();return "";}
     public String PrintDev(String[] s1,String s2){String str = s1[0].replace("\"","");Term.TextDev+="\n"+str;Term.Update();return "";}
