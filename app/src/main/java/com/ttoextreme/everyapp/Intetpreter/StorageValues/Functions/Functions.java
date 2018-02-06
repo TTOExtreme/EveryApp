@@ -54,7 +54,7 @@ public class Functions {
     public void Set(String name, List<String> Lines)
     {
         FunctionStruct fu = new FunctionStruct();
-        fu.Name = name;
+        fu.Name = name+"(";
         fu.Lines = Lines;
         for (int i = 0; i < Fs.size(); i++)
         {

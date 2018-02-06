@@ -32,6 +32,14 @@ public class Methods {
         return false;
     }
 
+    public String MethodCall(String in){
+        for(int i=0;i<MethodsList.size();i++){
+            if(in.indexOf("(")>-1){in=in.substring(0,in.indexOf("(")+1);}
+            if(in.indexOf(MethodsList.get(i).Calls)>-1){return MethodsList.get(i).Calls;}
+        }
+        return "";
+    }
+
     public BiFunction<String[],String,String> Get(String in){
         for(int i=0;i<MethodsList.size();i++){
             if(in.indexOf("(")>-1){in=in.substring(0,in.indexOf("(")+1);}

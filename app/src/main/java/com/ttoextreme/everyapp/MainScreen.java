@@ -288,9 +288,9 @@ public class MainScreen extends AppCompatActivity implements NavigationView.OnNa
             writer.append(Code);
             writer.flush();
             writer.close();
-            Lua.DoLine(Lua.Refer.PrintDev+"(file created: " + Exp +")");
+            //Lua.DoLine(Lua.Refer.PrintDev+"(file created: " + Exp +")");
         } catch (IOException e) {
-            Lua.DoLine(Lua.Refer.PrintDev+"(Error " + e.getMessage() +")");
+            //Lua.DoLine(Lua.Refer.PrintDev+"(Error " + e.getMessage() +")");
         }
     }
 

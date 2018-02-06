@@ -37,9 +37,6 @@ public class LuaInterpreterJava {
     public Variables Vars;
     public Components Compo;
 
-    private int LineAt =0;//pos program
-    private String[] Program;
-
     public String BGExecution = "";
 
     public LuaInterpreterJava(MainScreen ms){
@@ -63,12 +60,14 @@ public class LuaInterpreterJava {
     public void DoLine(String command){
         String uuid1 = "{" + UUID.randomUUID().toString()+"}";
         //Main.DebugAct.Append("[Info] Execute Line: {" + command + "} UUID: " + uuid1);
-        DoFile(new String[]{command},uuid1);
+        DoFile(new String[]{command},uuid1,0);
+    }
+    public void DoFile(String[] program,String uuid){
+        DoFile(program,uuid,0);
     }
 
-    public void DoFile(String[] program,String uuid){
-
-        Program=program;
+    public void DoFile(String[] program,String uuid,int LineAt){
+        //Program=program;
         program = Comp.Compile(program);
         for (int i=LineAt;i<program.length;i++) {
             if(program[i].indexOf(Refer.Delay)>-1){
@@ -80,7 +79,6 @@ public class LuaInterpreterJava {
                 String uuid1 = "{" + UUID.randomUUID().toString()+"}";
                 BGExecution = BGExecution + uuid1;
                 program[i]="";
-                Program = program;
 
                 final Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
@@ -89,82 +87,95 @@ public class LuaInterpreterJava {
                         BGExecution = BGExecution.replace(uuid1,"");
                     }
                 }, DelayTime);
-                PauseContinue(uuid1,uuid);
+                PauseContinue(program, i, uuid1, uuid);
                 return;
                 //*/
-            }else{
-                if(MethodsClass.MethodValid(program[i])){
-                    MethodsClass.Get(program[i]).apply(ExtractArgs(Vars.Replace(program[i])),program[i]);
-                    program[i]="";
-                }else{
-                    if(Func.Exist(program[i])){
-                        //DoFile(Func.Get(program[i]).toArray(new String[0]));
-                    }else {
-                        //++; --;
-                        if (program[i].indexOf("++") > -1) {
-                            String v = program[i].replace("++", "").replace(";", "").replace(" ", "");
-                            Vars.VarSum(v, 1);
-                        }
-                        if (program[i].indexOf("--") > -1) {
-                            String v = program[i].replace("--", "").replace(";", "").replace(" ", "");
-                            Vars.VarSub(v, 1);
-                        }
+            }else {
+                if (MethodsClass.MethodValid(program[i])) {
+                    String s = MethodsClass.Get(program[i]).apply(ExtractArgs(Vars.Replace(program[i])), program[i]);
+                    program[i] = program[i].replace(MethodsClass.MethodCall(program[i]), s);
+                    //program[i]="";
+                }
+                //executes the rest of statements after return from method if exists
+                if (Func.Exist(program[i])) {
 
-                        //var creation
-                        if (program[i].indexOf(" = ") > -1) {
-                            String[] v = program[i].replace(";", "").replace(" ", "").split("=");
-                            Vars.VarAdd(new VariablesStruct(v[0], new VariablesStruct().LOCAL, v[1]));
-                        }
+                    String uuid1 = "{" + UUID.randomUUID().toString() + "}";
+                    BGExecution = BGExecution + uuid1;
+                    PauseContinue(program, i+1, uuid1, uuid);
+                    DoFile(Func.Get(program[i]).toArray(new String[0]),uuid1);
+                    return;
+                } else {
+                    //++; --;
+                    if (program[i].indexOf("++") > -1) {
+                        String v = program[i].replace("++", "").replace(";", "").replace(" ", "");
+                        Vars.VarSum(v, 1);
+                    }
+                    if (program[i].indexOf("--") > -1) {
+                        String v = program[i].replace("--", "").replace(";", "").replace(" ", "");
+                        Vars.VarSub(v, 1);
+                    }
 
-                        //conditionals
-                        if (program[i].indexOf(Refer.If) > -1 && program[i].indexOf(Refer.Then) > -1) {
-                            List<String> p = new ArrayList<>();
-                            for (int j = 0; j < program.length - i; j++) {
-                                p.add(program[i + j]);
-                                program[i + j] = "";
-                            }
-                            p = IF.IfStatement(p);
-                            for (int j = 0; j < p.size(); j++) {
-                                program[i + j] = p.get(j);
-                            }
-                        }
-                        if (program[i].indexOf(Refer.For) > -1 && program[i].indexOf(Refer.Do) > -1) {
-                            List<String> p = new ArrayList<>();
-                            String openclose="";
-                            for (int j = 0; j < program.length - i; j++) {
-                                if (program[i+j].indexOf(Refer.Do) > -1 || program[i+j].indexOf(Refer.Then) > -1) { openclose += "{"; }
-                                if (program[i+j].indexOf(Refer.End) > -1) { openclose += "}"; }
-                                while (openclose.indexOf("{}")>-1){openclose=openclose.replace("{}","");}
-                                p.add(program[i + j]);
-                                program[i + j] = "";
-                                if(openclose.equals("")){break;}
-                            }
-                            String uuid1 = "{" + UUID.randomUUID().toString()+"}";
-                            BGExecution = BGExecution+uuid1;
-                            Program = program;
-                            PauseContinue(uuid1,uuid);
+                    //var creation
+                    if (program[i].indexOf(" = ") > -1) {
+                        String[] v = program[i].replace(";", "").replace(" ", "").split("=");
+                        Vars.VarAdd(new VariablesStruct(v[0], new VariablesStruct().LOCAL, v[1]));
+                    }
 
-                            FOR.FOR(p,uuid1);
-                            return;
-                            //*/
+                    //conditionals
+                    if (program[i].indexOf(Refer.If) > -1 && program[i].indexOf(Refer.Then) > -1) {
+                        List<String> p = new ArrayList<>();
+                        for (int j = 0; j < program.length - i; j++) {
+                            p.add(program[i + j]);
+                            program[i + j] = "";
                         }
-                        if (program[i].indexOf(Refer.While) > -1 && program[i].indexOf(Refer.Do) > -1) {
-                            List<String> p = new ArrayList<>();
-                            for (int j = 0; j < program.length - i; j++) {
-                                p.add(program[i + j]);
-                                program[i + j] = "";
-                            }
-                            WHILE.WhileStatement(p);
-                            for (int j = 0; j < p.size(); j++) {
-                                program[i + j] = p.get(j);
-                            }
-                            BGExecution = BGExecution + "{";
-                            Program = program;
-                            //PauseContinue();
-                            return;
+                        p = IF.IfStatement(p);
+                        for (int j = 0; j < p.size(); j++) {
+                            program[i + j] = p.get(j);
                         }
                     }
+                    if (program[i].indexOf(Refer.For) > -1 && program[i].indexOf(Refer.Do) > -1) {
+                        List<String> p = new ArrayList<>();
+                        String openclose = "";
+                        for (int j = 0; j < program.length - i; j++) {
+                            if (program[i + j].indexOf(Refer.Do) > -1 || program[i + j].indexOf(Refer.Then) > -1) {
+                                openclose += "{";
+                            }
+                            if (program[i + j].indexOf(Refer.End) > -1) {
+                                openclose += "}";
+                            }
+                            while (openclose.indexOf("{}") > -1) {
+                                openclose = openclose.replace("{}", "");
+                            }
+                            p.add(program[i + j]);
+                            program[i + j] = "";
+                            if (openclose.equals("")) {
+                                break;
+                            }
+                        }
+                        String uuid1 = "{" + UUID.randomUUID().toString() + "}";
+                        BGExecution = BGExecution + uuid1;
+                        PauseContinue(program, i, uuid1, uuid);
+
+                        FOR.FOR(p, uuid1);
+                        return;
+                        //*/
+                    }
+                    if (program[i].indexOf(Refer.While) > -1 && program[i].indexOf(Refer.Do) > -1) {
+                        List<String> p = new ArrayList<>();
+                        for (int j = 0; j < program.length - i; j++) {
+                            p.add(program[i + j]);
+                            program[i + j] = "";
+                        }
+                        WHILE.WhileStatement(p);
+                        for (int j = 0; j < p.size(); j++) {
+                            program[i + j] = p.get(j);
+                        }
+                        BGExecution = BGExecution + "{";
+                        //PauseContinue();
+                        return;
+                    }
                 }
+
             }
         }
         LineAt=0;
@@ -173,15 +184,15 @@ public class LuaInterpreterJava {
         //MethodsClass.Get(Refer.Print).apply(new String[]{Refer.EndProgram},"");
     }
 
-    private void PauseContinue(String wait,String uuid) {
+    private void PauseContinue(String[] Program,int LineAt, String wait,String uuid) {
         if (BGExecution.indexOf(wait) < 0) {
-            DoFile(Program,uuid);
+            DoFile(Program,uuid,LineAt);
         } else {
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    PauseContinue(wait,uuid);
+                    PauseContinue(Program,LineAt,wait,uuid);
                 }
             }, 50);
         }
@@ -194,6 +205,13 @@ public class LuaInterpreterJava {
         }
         return str.split(",");
 
+    }
+
+    public String ExtractString(String str){
+        if(str.indexOf("\"")>-1) {
+            str.replace(str.substring(str.indexOf("\"")).substring(0, str.substring(str.indexOf("\"")).indexOf("\"")), "");
+        }
+        return str;
     }
 
     public void AddMethod(String name, String caller, BiFunction<String[],String,String> method){
